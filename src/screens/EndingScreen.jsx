@@ -34,12 +34,11 @@ function RichText({ text }) {
 }
 
 export default function EndingScreen() {
-  const { state, restart, totalClues } = useGame()
+  const { state, restart, advertisedTotal, nonBossFoundCount, bossFound } = useGame()
   const lookup = useMemo(buildClueLookup, [])
   const insights = useMemo(() => deriveInsights(loadStats()), [])
 
   const found = state.cluesFound
-  const foundCount = found.length
   const trust = state.trust
   const impulse = state.impulseCount
   const expose = state.exposeCount
@@ -47,17 +46,49 @@ export default function EndingScreen() {
   const accusedInnocent = state.choices.act5 === 'a5_lisa' || state.choices.act5 === 'a5_partner'
   const accusedLisa = state.choices.act2 === 'a2_impulse' || state.choices.act5 === 'a5_lisa'
   const reach = impulse * 40000
-  const beatPct = Math.min(96, Math.round((foundCount / totalClues) * 60 + (trust / 100) * 34) + 2)
+  const beatPct = Math.min(96, Math.round((nonBossFoundCount / advertisedTotal) * 60 + (trust / 100) * 34) + 2)
+  const caughtBoss = bossFound
 
-  const caughtBoss = found.includes('c_rival_knew')
+  // 結局分歧：看穿黑手了嗎？公信力還在嗎？
+  const outcome =
+    caughtBoss && trust >= 55
+      ? {
+          key: 'hero',
+          emoji: '🏆',
+          title: '你揭穿了整場騙局',
+          color: 'border-ok/50 bg-ok/10 text-ok',
+          text: '你揪出了藏在最深處的黑手——那個一邊餵你假料、一邊在旁邊看戲的熱點日報小編。你是少數沒被耍的人。你的粉專因為「敢查證、說真話」被更多人信任。',
+        }
+      : caughtBoss
+        ? {
+            key: 'sharp',
+            emoji: '🕵️',
+            title: '你識破了黑手，但手也不乾淨',
+            color: 'border-warn/50 bg-warn/10 text-warn',
+            text: '你看穿了幕後操縱的人。只是過程中，你也轉發過沒查證的東西——真相被你揭開了，你卻差點成為他的幫兇。',
+          }
+        : trust < 40 || accusedInnocent
+          ? {
+              key: 'ruined',
+              emoji: '💀',
+              title: '身敗名裂的，是你',
+              color: 'border-danger/50 bg-danger/10 text-danger',
+              text: '你轉發的假消息被一一拆穿，讀者發現你不查證、還幫忙獵巫無辜的人。粉專公信力崩盤、被大量退追、你公開道歉下台。\n而在背後操縱這一切的熱點日報小編？他全身而退，看著你替他扛下所有罵名——還在私訊裡笑你：「果然，沒人會查。」',
+            }
+          : {
+              key: 'fooled',
+              emoji: '🌫️',
+              title: '你沒鑄成大錯，但也沒看穿',
+              color: 'border-mute/40 bg-panel2 text-white/80',
+              text: '你沒有鑄成大錯。但你始終沒發現：這整場風波，是有人蓄意操縱的。黑手至今逍遙，而且他知道——這招對大多數人都有效。下一個「瘋瘋事件」，還會再來。',
+            }
 
-  // 稱號：結合「抓破綻」與「公信力」（滿 10 題很難，一般玩家找不齊）
   const rankLabel =
-    foundCount >= 9 && trust >= 75
+    nonBossFoundCount >= advertisedTotal && trust >= 75
       ? '事實查核大師'
-      : foundCount >= 6 && trust >= 55
+      : nonBossFoundCount >= 6 && trust >= 55
         ? '清醒的旁觀者'
-        : foundCount >= 3
+        : nonBossFoundCount >= 3
           ? '半信半疑者'
           : '被帶風向的人'
 
@@ -73,12 +104,22 @@ export default function EndingScreen() {
         <RichText text={ending.truth} />
       </div>
 
-      {/* 你的表現：破綻 + 公信力 */}
+      {/* 你的結局（分歧） */}
+      <div className={`rounded-2xl border p-5 ${outcome.color}`}>
+        <div className="text-4xl">{outcome.emoji}</div>
+        <h2 className="mt-2 text-xl font-black">{outcome.title}</h2>
+        <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-white/85">{outcome.text}</p>
+      </div>
+
+      {/* 你的表現：破綻 + 公信力（對外 9） */}
       <div className="rounded-2xl border border-brand/40 bg-brand/5 p-5 text-center">
         <div className="text-xs text-mute">你的最終成績</div>
         <div className="mt-2 flex items-center justify-center gap-6">
           <div>
-            <div className="text-3xl font-black text-warn">{foundCount}/{totalClues}</div>
+            <div className="text-3xl font-black text-warn">
+              {nonBossFoundCount}/{advertisedTotal}
+              {caughtBoss && <span className="text-brand"> +👑</span>}
+            </div>
             <div className="text-xs text-white/70">抓到破綻</div>
           </div>
           <div className="h-10 w-px bg-line" />
@@ -90,43 +131,47 @@ export default function EndingScreen() {
         <div className="mt-3 inline-block rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-sm font-bold text-accent">
           稱號：{rankLabel}
         </div>
-        {caughtBoss && (
-          <div className="mt-2 inline-block rounded-full border border-brand/50 bg-brand/15 px-3 py-1 text-sm font-bold text-brand">
-            👑 你抓到了魔王破綻——識破了幕後黑手
-          </div>
+        <p className="mt-2 text-xs text-mute">你比 {beatPct}% 的玩家更能識破假消息。</p>
+      </div>
+
+      {/* 9 vs 10 大揭露 */}
+      <div className="rounded-2xl border border-brand/50 bg-brand/10 p-5">
+        <h3 className="font-black text-brand">🕳️ 還有一件事，關於「9 個」</h3>
+        {caughtBoss ? (
+          <p className="mt-2 text-sm leading-relaxed text-white/90">
+            我從頭到尾都只跟你說「<b className="text-white">9 個破綻</b>」。
+            但其實有 <b className="text-white">10 個</b>——第 10 個我從沒告訴你。
+            而你，<b className="text-brand">自己把它挖了出來</b>。
+            連遊戲給你的數字，你都沒照單全收。這，正是我想教你的事。
+          </p>
+        ) : (
+          <p className="mt-2 text-sm leading-relaxed text-white/90">
+            我從頭到尾都只跟你說「<b className="text-white">9 個破綻</b>」，你大概也就找到 9 個以內。
+            但其實有 <b className="text-white">10 個</b>。第 10 個，是整起事件的關鍵——<b className="text-white">是誰在背後操縱</b>。
+            你沒發現它，因為你相信了我給你的「9」。
+            <br />
+            <b className="text-brand">連遊戲、連任何權威給你的數字，你都應該查證。</b>這，才是這個遊戲真正想說的。
+          </p>
         )}
-        <p className="mt-2 text-xs text-mute">10 個破綻越後面越難，一般人找不齊。你比 {beatPct}% 的玩家更能識破假消息。</p>
       </div>
 
       {/* 逐條回放 */}
       <div className="rounded-2xl border border-line bg-panel p-5">
         <h3 className="font-bold">🔁 回放：這些都是假的</h3>
         <p className="mt-1 text-xs text-mute">🟢 = 你當時查到了　🔴 = 查得到但你沒查</p>
-        <div className="mt-3 space-y-2">
-          {ending.clueOrder.map((cid) => {
-            const clue = lookup[cid]
-            const got = found.includes(cid)
-            const sk = skills[clue.skill]
-            return (
-              <div
-                key={cid}
-                className={`rounded-xl border p-3 ${
-                  clue.boss ? (got ? 'border-brand/50 bg-brand/10' : 'border-brand/40 bg-brand/5') : got ? 'border-ok/40 bg-ok/5' : 'border-danger/40 bg-danger/5'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <span>{got ? '🟢' : '🔴'}</span>
-                  <span className="text-sm font-semibold text-white">
-                    {sk?.icon} {sk?.name}
-                  </span>
-                  {clue.boss && <span className="rounded bg-brand/30 px-1.5 py-0.5 text-[10px] font-bold text-brand">👑 魔王</span>}
-                  <span className="ml-auto text-[11px] text-mute">來源：{clue.evAuthor}</span>
-                </div>
-                <p className="mt-1 text-sm text-white/85">{clue.truth}</p>
-                {!got && <p className="mt-1 text-xs text-danger">你當時沒查——{clue.found}</p>}
-              </div>
-            )
-          })}
+
+        <div className="mt-3 text-[11px] font-semibold text-mute">我告訴過你的 9 個</div>
+        <div className="mt-2 space-y-2">
+          {ending.clueOrder.filter((cid) => !lookup[cid].boss).map((cid) => (
+            <ClueRow key={cid} clue={lookup[cid]} got={found.includes(cid)} sk={skills[lookup[cid].skill]} />
+          ))}
+        </div>
+
+        <div className="mt-4 text-[11px] font-semibold text-brand">🕳️ 我沒說的第 10 個</div>
+        <div className="mt-2 space-y-2">
+          {ending.clueOrder.filter((cid) => lookup[cid].boss).map((cid) => (
+            <ClueRow key={cid} clue={lookup[cid]} got={found.includes(cid)} sk={skills[lookup[cid].skill]} />
+          ))}
         </div>
       </div>
 
@@ -241,7 +286,8 @@ export default function EndingScreen() {
         </button>
         <button
           onClick={() => {
-            const txt = `我在《回聲事件》抓到 ${foundCount}/${totalClues} 個假消息破綻、公信力 ${trust}%，稱號「${rankLabel}」。你能識破幾個？`
+            const bossTxt = caughtBoss ? '，還找到了藏起來的第 10 個 👑' : ''
+            const txt = `我在《回聲事件》抓到 ${nonBossFoundCount}/${advertisedTotal} 個假消息破綻、公信力 ${trust}%${bossTxt}。他們說有 9 個，但其實…你自己玩玩看。`
             if (navigator.share) navigator.share({ title: '回聲事件', text: txt }).catch(() => {})
             else {
               navigator.clipboard?.writeText(txt)
@@ -256,6 +302,37 @@ export default function EndingScreen() {
       <p className="text-center text-[11px] text-mute">
         {you.handle}｜《回聲事件》為 DFT 競賽原型，人物與事件皆為虛構。
       </p>
+    </div>
+  )
+}
+
+function ClueRow({ clue, got, sk }) {
+  return (
+    <div
+      className={`rounded-xl border p-3 ${
+        clue.boss
+          ? got
+            ? 'border-brand/50 bg-brand/10'
+            : 'border-brand/40 bg-brand/5'
+          : got
+            ? 'border-ok/40 bg-ok/5'
+            : 'border-danger/40 bg-danger/5'
+      }`}
+    >
+      <div className="flex items-center gap-2">
+        <span>{got ? '🟢' : clue.boss ? '👑' : '🔴'}</span>
+        <span className="text-sm font-semibold text-white">
+          {sk?.icon} {sk?.name}
+        </span>
+        {clue.boss && <span className="rounded bg-brand/30 px-1.5 py-0.5 text-[10px] font-bold text-brand">魔王</span>}
+        <span className="ml-auto text-[11px] text-mute">來源：{clue.evAuthor}</span>
+      </div>
+      <p className="mt-1 text-sm text-white/85">{clue.truth}</p>
+      {!got && (
+        <p className={`mt-1 text-xs ${clue.boss ? 'text-brand' : 'text-danger'}`}>
+          {clue.boss ? '你沒發現這個——它才是整起事件的關鍵。' : `你當時沒查——${clue.found}`}
+        </p>
+      )}
     </div>
   )
 }

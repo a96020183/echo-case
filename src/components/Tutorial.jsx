@@ -26,7 +26,7 @@ export default function Tutorial({ onFinish }) {
             <>🔍 放大了！仔細看照片，有沒有哪裡不對勁？<b className="text-white"> 覺得可疑的地方，點一下。</b></>
           )}
           {phase === 'done' && (
-            <>🎯 你抓到了！照片角落的日期是 <b className="text-warn">2019 年</b>——這是好幾年前的舊照，根本不是「今天」。<br />這就是事實查核：<b className="text-white">多看一眼細節，就不會被騙。</b>正式遊戲裡藏了 <b className="text-white">10 個破綻</b>，越後面越難、還有<b className="text-brand"> 👑 魔王級</b>的——<b className="text-white">一般人找不齊，你能抓到幾個？</b></>
+            <>🎯 你抓到了！照片角落的日期是 <b className="text-warn">2019 年</b>——這是好幾年前的舊照，根本不是「今天」。<br />這就是事實查核：<b className="text-white">多看一眼細節，就不會被騙。</b>正式遊戲裡藏了 <b className="text-white">9 個破綻</b>，越後面越難——<b className="text-white">一般人找不齊，你能抓到幾個？</b></>
           )}
         </div>
 

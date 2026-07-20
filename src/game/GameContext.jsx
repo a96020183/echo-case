@@ -108,11 +108,22 @@ export function GameProvider({ children }) {
 
   const value = useMemo(() => {
     const act = acts[s.actIndex] || acts[0]
-    const totalClues = ending.clueOrder.length
+    const totalClues = ending.clueOrder.length // 真實總數（10，含魔王）
+    // 魔王破綻：不計入對外公開的數字。對外一律說「9 個」。
+    const bossIds = Object.values(evidence)
+      .filter((e) => e.clue?.boss)
+      .map((e) => e.clue.id)
+    const advertisedTotal = totalClues - bossIds.length // 9
+    const nonBossFoundCount = s.cluesFound.filter((id) => !bossIds.includes(id)).length
+    const bossFound = s.cluesFound.some((id) => bossIds.includes(id))
     return {
       state: s,
       act,
-      totalClues,
+      totalClues, // 真實 10
+      advertisedTotal, // 對外 9
+      nonBossFoundCount, // 對外找到數 /9
+      bossFound, // 是否找到魔王
+      bossIds,
       cluesFoundCount: s.cluesFound.length,
       isVerified: (evId) => s.verified.includes(evId),
       isClueFound: (clueId) => s.cluesFound.includes(clueId),

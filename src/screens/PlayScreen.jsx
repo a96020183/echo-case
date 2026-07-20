@@ -6,11 +6,12 @@ import DecisionPanel from '../components/DecisionPanel.jsx'
 import Tutorial from '../components/Tutorial.jsx'
 
 export default function PlayScreen() {
-  const { state, act, cluesFoundCount, totalClues, finishTutorial } = useGame()
+  const { state, act, cluesFoundCount, advertisedTotal, nonBossFoundCount, bossFound, finishTutorial } = useGame()
   const [showBrief, setShowBrief] = useState(true)
   const [showDecision, setShowDecision] = useState(false)
   const [toast, setToast] = useState(null)
   const prevClues = useRef(cluesFoundCount)
+  const prevBoss = useRef(bossFound)
 
   // 換幕時重開簡報
   useEffect(() => {
@@ -18,16 +19,19 @@ export default function PlayScreen() {
     setShowDecision(false)
   }, [state.actIndex])
 
-  // 找到新破綻 → 冒出提示
+  // 找到新破綻 → 冒出提示（魔王另給驚喜提示）
   useEffect(() => {
     if (cluesFoundCount > prevClues.current) {
-      setToast('🚩 抓到一個破綻！查核紀錄 +1')
-      const t = setTimeout(() => setToast(null), 2200)
+      const justBoss = bossFound && !prevBoss.current
+      setToast(justBoss ? '👑 等等……不是只有 9 個嗎？你發現了藏起來的第 10 個！' : '🚩 抓到一個破綻！查核紀錄 +1')
+      const t = setTimeout(() => setToast(null), justBoss ? 3600 : 2200)
       prevClues.current = cluesFoundCount
+      prevBoss.current = bossFound
       return () => clearTimeout(t)
     }
     prevClues.current = cluesFoundCount
-  }, [cluesFoundCount])
+    prevBoss.current = bossFound
+  }, [cluesFoundCount, bossFound])
 
   // 目前為止累積的證據
   const items = useMemo(() => {
@@ -58,7 +62,8 @@ export default function PlayScreen() {
           <div>
             <div className="text-[10px] text-mute sm:text-xs">已抓破綻</div>
             <div className="font-mono text-sm font-bold text-warn sm:text-base">
-              {cluesFoundCount}/{totalClues}
+              {nonBossFoundCount}/{advertisedTotal}
+              {bossFound && <span className="ml-0.5 text-brand">+1👑</span>}
             </div>
           </div>
         </div>
