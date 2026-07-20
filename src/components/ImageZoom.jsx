@@ -76,12 +76,19 @@ export default function ImageZoom({ ev, alreadyFound, onFind, onClose }) {
   )
 }
 
-// 反查比對用的小縮圖：與「當晚後門畫面」同一張巷弄圖
+// 反查比對用的小縮圖：與「當晚後門畫面」同一張巷弄圖（縮小版）
 function MiniAlley({ label, tag, tagClass }) {
   return (
     <div>
-      <div className="relative flex h-16 items-center justify-center overflow-hidden rounded border border-black/40 bg-gradient-to-b from-[#1a2230] to-[#05070c]">
-        <span className="text-2xl opacity-70">🌃</span>
+      <div className="relative h-16 overflow-hidden rounded border border-black/40 bg-gradient-to-b from-[#12161f] to-[#05070c]">
+        <svg viewBox="0 0 300 200" className="absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid slice">
+          <polygon points="0,0 90,40 90,200 0,200" fill="#141922" />
+          <polygon points="300,0 210,40 210,200 300,200" fill="#10141c" />
+          <polygon points="90,200 90,60 210,60 210,200" fill="#0b0e14" />
+          <rect x="130" y="80" width="40" height="70" rx="2" fill="#1c222c" />
+          <circle cx="150" cy="120" r="9" fill="#05060a" />
+          <path d="M138 176 C138 150 143 132 150 132 C157 132 162 150 162 176 Z" fill="#05060a" />
+        </svg>
         <span className={`absolute right-1 top-1 rounded px-1 text-[9px] font-bold ${tagClass}`}>{tag}</span>
       </div>
       <div className="mt-1 truncate text-[10px] text-mute">{label}</div>

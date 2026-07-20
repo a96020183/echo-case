@@ -74,9 +74,9 @@ export default function PlayScreen() {
 
           <button
             onClick={() => setShowDecision(true)}
-            className="w-full rounded-xl bg-brand py-3 font-bold text-white transition hover:brightness-110 active:scale-[0.99]"
+            className="w-full rounded-full bg-white py-3 font-bold text-black transition hover:bg-white/90 active:scale-[0.99]"
           >
-            我想好了，做決定 →
+            我想好了，做決定
           </button>
           <p className="text-center text-xs text-mute">
             不急著決定。先在右邊的手機裡查清楚，抓到的破綻越多，你越不會被騙。
@@ -91,11 +91,12 @@ export default function PlayScreen() {
 
       {/* 簡報 modal */}
       {showBrief && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/80 p-4" onClick={() => setShowBrief(false)}>
+        <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/80 p-0 sm:items-center sm:p-4" onClick={() => setShowBrief(false)}>
           <div
-            className="w-full max-w-md animate-pop rounded-2xl border border-line bg-panel p-5"
+            className="w-full max-w-md animate-fadeup rounded-t-3xl border border-line bg-black p-5 sm:rounded-3xl"
             onClick={(e) => e.stopPropagation()}
           >
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-[#333] sm:hidden" />
             <div className="text-xs font-semibold text-mute">第 {act.no} 幕</div>
             <h3 className="mt-1 text-xl font-black">{act.title}</h3>
             <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-white/85">{act.briefing}</p>
@@ -107,7 +108,7 @@ export default function PlayScreen() {
             )}
             <button
               onClick={() => setShowBrief(false)}
-              className="mt-4 w-full rounded-xl bg-brand py-2.5 font-bold text-white hover:brightness-110"
+              className="mt-4 w-full rounded-full bg-white py-2.5 font-bold text-black hover:bg-white/90"
             >
               開始調查
             </button>

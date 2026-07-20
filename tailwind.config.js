@@ -4,16 +4,17 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: '#0b0e14',
-        panel: '#141922',
-        panel2: '#1c222e',
-        line: '#2a3140',
-        brand: '#3b82f6',
-        accent: '#22d3ee',
-        danger: '#ef4444',
-        warn: '#f59e0b',
+        // Threads 風調色盤
+        ink: '#000000',
+        panel: '#0a0a0a',
+        panel2: '#181818',
+        line: '#262626',
+        brand: '#0095f6', // 認證藍
+        accent: '#0095f6',
+        danger: '#ff3040', // Threads/IG 紅
+        warn: '#f5a623',
         ok: '#22c55e',
-        mute: '#8b94a7',
+        mute: '#777777',
       },
       fontFamily: {
         sans: ['"Noto Sans TC"', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],

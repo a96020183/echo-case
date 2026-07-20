@@ -36,9 +36,9 @@ export default function IntroScreen() {
 
       <button
         onClick={start}
-        className="mt-6 w-full rounded-xl bg-brand py-3 font-bold text-white transition hover:brightness-110 active:scale-[0.99]"
+        className="mt-6 w-full rounded-full bg-white py-3 font-bold text-black transition hover:bg-white/90 active:scale-[0.99]"
       >
-        進入現場 →
+        進入現場
       </button>
       <p className="mt-3 text-xs text-mute">約 20–30 分鐘。準備好，別太快相信任何東西。</p>
     </div>

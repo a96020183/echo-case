@@ -22,22 +22,52 @@ export default function FakeShot({ shot, audio, inspect = false, revealed = fals
 
   if (shot.scene === 'studio') {
     return (
-      <div className={`${base} ${h} bg-gradient-to-br from-[#2a1a3a] to-[#101820]`}>
+      <div className={`${base} ${h} bg-gradient-to-b from-[#3b2a4d] via-[#241a30] to-[#0d1017]`}>
+        {/* 主播剪影 */}
+        <svg viewBox="0 0 200 160" className="absolute bottom-0 left-1/2 h-[78%] -translate-x-1/2" preserveAspectRatio="xMidYMax meet">
+          <defs>
+            <radialGradient id="spot" cx="50%" cy="30%" r="60%">
+              <stop offset="0%" stopColor="#5a4a6a" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="#000" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+          <ellipse cx="100" cy="60" rx="90" ry="70" fill="url(#spot)" />
+          {/* 頭 + 肩 */}
+          <circle cx="100" cy="58" r="26" fill="#1c222c" />
+          <path d="M52 160 C52 120 68 100 100 100 C132 100 148 120 148 160 Z" fill="#1c222c" />
+          {/* 麥克風 */}
+          <rect x="70" y="86" width="10" height="26" rx="5" fill="#3a3f48" />
+          <rect x="72" y="112" width="6" height="20" fill="#2a2e36" />
+        </svg>
+
+        {/* LIVE 徽章 */}
         <div className="absolute left-2 top-2 flex items-center gap-1 rounded bg-danger px-1.5 py-0.5 text-[10px] font-bold text-white">
-          ● LIVE
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" /> LIVE
         </div>
+        {/* 觀看數 */}
+        <div className="absolute left-14 top-2 rounded bg-black/50 px-1.5 py-0.5 text-[10px] text-white/90">👁 12.4K</div>
+        {/* 時間戳（破綻） */}
         <div className="absolute right-2 top-2 rounded bg-black/60 px-1.5 py-0.5 text-[11px] font-mono text-white/90">
           {shot.timestampText}
         </div>
-        {/* 破綻：時間戳，與上面 right-2 top-2 同位置 */}
         <Marker className="right-1.5 top-1.5 h-6 w-16" />
-        <div className="flex h-full items-center justify-center">
-          <div className="text-center">
-            <div className="text-5xl opacity-80">🎙️</div>
-            <div className="mt-2 text-xs text-white/60">{shot.caption}</div>
+
+        {/* 飄心 */}
+        <div className="absolute bottom-14 right-3 flex flex-col items-center gap-1 text-danger">
+          <span className="animate-pulse text-sm opacity-90">❤</span>
+          <span className="text-xs opacity-70">❤</span>
+          <span className="text-[10px] opacity-50">❤</span>
+        </div>
+
+        {/* 頻道名 */}
+        <div className="absolute bottom-8 left-2 text-xs font-semibold text-white/90 drop-shadow">{shot.caption}</div>
+
+        {/* 底部留言列 */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-2 py-1.5">
+          <div className="truncate text-[10px] text-white/70">
+            <b className="text-white/90">觀眾_h23</b> 阿聲怎麼了？！有人快叫救護車
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black/60 to-transparent" />
       </div>
     )
   }
@@ -108,15 +138,37 @@ export default function FakeShot({ shot, audio, inspect = false, revealed = fals
 
   if (shot.scene === 'alley') {
     return (
-      <div className={`${base} ${h} bg-gradient-to-b from-[#1a2230] to-[#05070c]`}>
-        <div className="flex h-full items-center justify-center">
-          <div className="text-center">
-            <div className="text-4xl opacity-70">🌃</div>
-            <div className="mt-2 text-xs text-white/50">{shot.caption}</div>
-          </div>
+      <div className={`${base} ${h} bg-gradient-to-b from-[#12161f] via-[#0a0d13] to-[#05070c]`}>
+        {/* 巷弄場景：牆、地、路燈光暈、人影 */}
+        <svg viewBox="0 0 300 200" className="absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="lamp" cx="78%" cy="12%" r="45%">
+              <stop offset="0%" stopColor="#f4d58d" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#f4d58d" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+          {/* 兩側牆 */}
+          <polygon points="0,0 90,40 90,200 0,200" fill="#141922" />
+          <polygon points="300,0 210,40 210,200 300,200" fill="#10141c" />
+          {/* 地面 */}
+          <polygon points="90,200 90,60 210,60 210,200" fill="#0b0e14" />
+          {/* 路燈光暈 */}
+          <rect x="0" y="0" width="300" height="200" fill="url(#lamp)" />
+          {/* 門 */}
+          <rect x="130" y="80" width="40" height="70" rx="2" fill="#1c222c" />
+          {/* 人影 */}
+          <ellipse cx="150" cy="176" rx="16" ry="4" fill="#000" opacity="0.5" />
+          <circle cx="150" cy="120" r="9" fill="#05060a" />
+          <path d="M138 176 C138 150 143 132 150 132 C157 132 162 150 162 176 Z" fill="#05060a" />
+        </svg>
+
+        {/* CCTV 時間戳 */}
+        <div className="absolute left-2 top-2 rounded bg-black/50 px-1.5 py-0.5 text-[10px] font-mono text-[#7CFC00]/80">
+          REC ● 23:41:07
         </div>
+        <div className="absolute bottom-8 left-2 text-[11px] text-white/60">{shot.caption}</div>
         {shot.watermark && (
-          <div className="absolute bottom-2 right-2 text-[10px] font-mono text-white/40">{shot.watermark}</div>
+          <div className="absolute bottom-2 right-2 font-mono text-[10px] text-white/40">{shot.watermark}</div>
         )}
       </div>
     )

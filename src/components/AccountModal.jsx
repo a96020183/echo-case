@@ -1,6 +1,6 @@
 import { useGame } from '../game/GameContext.jsx'
 
-// 查帳號：顯示註冊日、貼文數、歷史。若此帳號藏 account 類破綻，查看即揭露。
+// Threads 個人檔案風。查帳號註冊日/貼文/歷史；藏 account 破綻的帳號查看即揭露。
 export default function AccountModal({ ev, onClose }) {
   const { findClue, markAccountChecked, isClueFound } = useGame()
   const acc = ev.account || {}
@@ -12,43 +12,64 @@ export default function AccountModal({ ev, onClose }) {
     if (isAccountClue && !found) findClue(ev.clue.id, ev.id)
   }
 
+  const suspicious = /前|當天/.test(acc.created || '') || (acc.posts != null && acc.posts <= 3)
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 sm:items-center" onClick={onClose}>
       <div
-        className="w-full max-w-sm animate-pop rounded-2xl border border-line bg-panel p-5"
+        className="w-full max-w-sm animate-fadeup rounded-t-3xl border border-line bg-black p-5 sm:rounded-3xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-3 flex items-center justify-between">
-          <span className="text-sm font-semibold text-white/80">👤 帳號資訊</span>
-          <button onClick={onClose} className="text-mute hover:text-white">✕</button>
-        </div>
+        {/* 抓握條 */}
+        <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-[#333] sm:hidden" />
 
-        <div className="flex items-center gap-3">
-          <div className="grid h-12 w-12 place-items-center rounded-full bg-panel2 text-2xl">{ev.avatar}</div>
+        {/* 檔案頭 */}
+        <div className="flex items-start justify-between">
           <div>
-            <div className="font-bold text-white">{ev.author}</div>
-            <div className="text-xs text-mute">{ev.at}</div>
+            <div className="flex items-center gap-1">
+              <span className="text-xl font-bold">{ev.author}</span>
+              {ev.official && <VerifiedBadge />}
+            </div>
+            <div className="text-sm text-mute">{ev.at}</div>
           </div>
+          <div className="grid h-16 w-16 place-items-center rounded-full bg-panel2 text-3xl">{ev.avatar}</div>
         </div>
 
-        <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-          <Stat label="註冊" value={acc.created || '不明'} warn={/前|當天/.test(acc.created || '')} />
-          <Stat label="貼文" value={acc.posts ?? '—'} warn={acc.posts != null && acc.posts <= 3} />
-          <Stat label="追蹤" value={acc.followers ?? '—'} />
+        {acc.note && <p className="mt-3 text-sm text-white/90">{acc.note}</p>}
+
+        <div className="mt-3 flex items-center gap-4 text-sm text-mute">
+          <span>
+            <b className={`${/前|當天/.test(acc.created || '') ? 'text-danger' : 'text-white'}`}>{acc.created || '註冊日不明'}</b> 加入
+          </span>
+          <span>·</span>
+          <span>
+            <b className={`${acc.posts != null && acc.posts <= 3 ? 'text-danger' : 'text-white'}`}>{acc.posts ?? '—'}</b> 則貼文
+          </span>
+          <span>·</span>
+          <span><b className="text-white">{acc.followers ?? '—'}</b> 粉絲</span>
         </div>
-        {acc.note && <p className="mt-3 text-xs text-mute">{acc.note}</p>}
+
+        {/* Threads 藥丸鈕 */}
+        <div className="mt-4 flex gap-2">
+          <button className="flex-1 rounded-xl bg-white py-2 text-sm font-semibold text-black">追蹤</button>
+          <button onClick={onClose} className="flex-1 rounded-xl border border-line py-2 text-sm font-semibold text-white">
+            關閉
+          </button>
+        </div>
 
         {isAccountClue && !found && (
           <button
             onClick={handleReveal}
-            className="mt-4 w-full rounded-lg border border-warn/50 bg-warn/10 py-2 text-sm font-semibold text-warn hover:bg-warn/20"
+            className={`mt-3 w-full rounded-xl border py-2 text-sm font-semibold ${
+              suspicious ? 'border-warn/50 bg-warn/10 text-warn' : 'border-line text-white/80'
+            }`}
           >
             這個帳號可信嗎？仔細看看
           </button>
         )}
 
         {isAccountClue && found && (
-          <div className="mt-4 animate-fadeup rounded-lg border border-danger/40 bg-danger/10 p-3">
+          <div className="mt-3 animate-fadeup rounded-xl border border-danger/40 bg-danger/10 p-3">
             <p className="text-sm font-bold text-danger">🚩 抓到破綻！</p>
             <p className="mt-1 text-sm text-white/90">{ev.clue.found}</p>
             <p className="mt-2 text-xs text-mute">{ev.clue.truth}</p>
@@ -59,11 +80,10 @@ export default function AccountModal({ ev, onClose }) {
   )
 }
 
-function Stat({ label, value, warn }) {
+function VerifiedBadge() {
   return (
-    <div className={`rounded-lg border p-2 ${warn ? 'border-warn/50 bg-warn/10' : 'border-line bg-panel2'}`}>
-      <div className={`text-sm font-bold ${warn ? 'text-warn' : 'text-white'}`}>{value}</div>
-      <div className="text-[10px] text-mute">{label}</div>
-    </div>
+    <svg viewBox="0 0 24 24" className="h-4 w-4 text-brand" fill="currentColor" aria-label="已驗證">
+      <path d="M12 2l2.4 1.8 3-.2 1 2.8 2.6 1.6-1 2.9 1 2.9-2.6 1.6-1 2.8-3-.2L12 22l-2.4-1.8-3 .2-1-2.8L3 16.2l1-2.9-1-2.9 2.6-1.6 1-2.8 3 .2L12 2zm-1.2 12.8l4.9-4.9-1.3-1.3-3.6 3.6-1.6-1.6L7.9 12l2.9 2.8z" />
+    </svg>
   )
 }

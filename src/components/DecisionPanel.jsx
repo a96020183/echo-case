@@ -13,8 +13,9 @@ export default function DecisionPanel({ act, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-      <div className="w-full max-w-md animate-pop rounded-2xl border border-line bg-panel p-5">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/80 sm:items-center sm:p-4">
+      <div className="w-full max-w-md animate-fadeup rounded-t-3xl border border-line bg-black p-5 sm:rounded-3xl">
+        <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-[#333] sm:hidden" />
         <div className="text-xs font-semibold text-mute">第 {act.no} 幕 · 決策</div>
         <h3 className="mt-1 text-lg font-bold">{act.decision.prompt}</h3>
 
@@ -58,9 +59,9 @@ export default function DecisionPanel({ act, onClose }) {
               </button>
               <button
                 onClick={confirm}
-                className="flex-1 rounded-lg bg-brand py-2 text-sm font-bold text-white hover:brightness-110"
+                className="flex-1 rounded-full bg-white py-2 text-sm font-bold text-black hover:bg-white/90"
               >
-                確定，下一步 →
+                確定，下一步
               </button>
             </div>
           </div>

@@ -14,9 +14,9 @@ body,
 
 body {
   margin: 0;
-  background: radial-gradient(1200px 800px at 50% -10%, #16202e 0%, #0b0e14 55%);
-  color: #e6e9ef;
-  font-family: 'Noto Sans TC', system-ui, sans-serif;
+  background: #000000;
+  color: #ffffff;
+  font-family: 'Noto Sans TC', -apple-system, 'Helvetica Neue', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
