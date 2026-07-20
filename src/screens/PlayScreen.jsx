@@ -46,18 +46,33 @@ export default function PlayScreen() {
           <div className="text-xs text-mute">回聲事件 · 第 {act.no}/5 幕</div>
           <div className="font-bold">{act.title}</div>
         </div>
-        <div className="flex items-center gap-4 text-right">
+        <div className="flex items-center gap-3 text-right sm:gap-4">
           <div>
-            <div className="text-xs text-mute">追蹤數</div>
-            <div className="font-mono font-bold text-accent">{state.followers.toLocaleString()}</div>
+            <div className="text-[10px] text-mute sm:text-xs">追蹤數</div>
+            <div className="font-mono text-sm font-bold text-white sm:text-base">{state.followers.toLocaleString()}</div>
           </div>
           <div>
-            <div className="text-xs text-mute">已抓破綻</div>
-            <div className="font-mono font-bold text-danger">
+            <div className="text-[10px] text-mute sm:text-xs">公信力</div>
+            <div className={`font-mono text-sm font-bold sm:text-base ${trustColor(state.trust)}`}>{state.trust}%</div>
+          </div>
+          <div>
+            <div className="text-[10px] text-mute sm:text-xs">已抓破綻</div>
+            <div className="font-mono text-sm font-bold text-warn sm:text-base">
               {cluesFoundCount}/{totalClues}
             </div>
           </div>
         </div>
+      </div>
+
+      {/* 公信力 vs 流量 說明條 */}
+      <div className="-mt-2 mb-4 flex items-center gap-2 px-1 text-[11px] text-mute">
+        <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-panel2">
+          <span
+            className={`block h-full rounded-full transition-all duration-500 ${trustBar(state.trust)}`}
+            style={{ width: `${state.trust}%` }}
+          />
+        </span>
+        <span>公信力越高，你的話越有人信</span>
       </div>
 
       <div className="grid gap-4 md:grid-cols-[1fr_auto]">
@@ -123,7 +138,13 @@ export default function PlayScreen() {
       )}
 
       {/* 決策 modal */}
-      {showDecision && <DecisionPanel act={act} onClose={() => setShowDecision(false)} />}
+      {showDecision && (
+        <DecisionPanel
+          act={act}
+          clueKnown={act.clueId ? state.cluesFound.includes(act.clueId) : false}
+          onClose={() => setShowDecision(false)}
+        />
+      )}
 
       {/* 破綻 toast */}
       {toast && (
@@ -133,4 +154,15 @@ export default function PlayScreen() {
       )}
     </div>
   )
+}
+
+function trustColor(t) {
+  if (t >= 60) return 'text-ok'
+  if (t >= 35) return 'text-warn'
+  return 'text-danger'
+}
+function trustBar(t) {
+  if (t >= 60) return 'bg-ok'
+  if (t >= 35) return 'bg-warn'
+  return 'bg-danger'
 }

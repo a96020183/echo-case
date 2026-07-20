@@ -83,6 +83,19 @@ export const evidence = {
       truth: '所謂「目擊者」是當天才開的空帳號，沒有任何歷史，可信度極低。',
     },
   },
+  // 同業競爭者（反轉伏筆，無破綻）
+  ev_rival_1: {
+    id: 'ev_rival_1',
+    type: 'post',
+    app: 'feed',
+    author: '熱點日報',
+    at: '@hot_daily_scoop',
+    avatar: '🗞️',
+    time: '19:45',
+    body: '大家在瞎猜喔？我手上有你們都沒有的東西，時候到了自然放。先追蹤起來 😏 #獨家在後頭',
+    likes: 5200,
+    shares: 1800,
+  },
 
   // 第二幕
   ev_dm_receipt: {
@@ -167,6 +180,18 @@ export const evidence = {
       },
     },
   },
+  ev_rival_2: {
+    id: 'ev_rival_2',
+    type: 'post',
+    app: 'feed',
+    author: '熱點日報',
+    at: '@hot_daily_scoop',
+    avatar: '🗞️',
+    time: '21:10',
+    body: '早說了吧，重點根本不是 Lisa。有些小編就是愛跟風蹭流量，蠢。（我沒說是誰喔😏）我的爆料，你們早晚會看到。',
+    likes: 8800,
+    shares: 3400,
+  },
 
   // 第四幕
   ev_tipster_profile: {
@@ -233,21 +258,23 @@ export const acts = [
     no: 1,
     title: '爆發',
     teach: 'timestamp',
+    clueId: 'c_time_mismatch',
     notification: { app: 'feed', text: '網紅「阿聲」直播中突然倒下，全網瘋傳！' },
     briefing:
       '晚上 19:30，人氣網紅「阿聲」直播到一半突然倒地、畫面斷訊。全網炸鍋。\n你是粉專「觀點日報」的小編——手最快的人最有流量。先看看現在流傳的東西，再決定要不要發文。',
     instinct: '等等……這張「現場截圖」，真的是剛剛拍的嗎？',
-    evidenceIds: ['ev_live_shot', 'ev_witness_story'],
+    evidenceIds: ['ev_live_shot', 'ev_witness_story', 'ev_rival_1'],
     tip: '圖片都能點開放大 🔍——馬腳常常藏在你懶得看的細節裡。',
     decision: {
       prompt: '事件剛爆，你要怎麼發第一篇？',
       options: [
-        { id: 'a1_impulse', label: '搶快！標題下「阿聲疑遭人加害，現場流出」', tone: 'impulse', followerDelta: 1800,
-          feedback: '流量暴衝 +1800！但你用的「現場截圖」你查過了嗎？' },
-        { id: 'a1_cautious', label: '先寫「消息待查證，呼籲勿傳未證實畫面」', tone: 'cautious', followerDelta: 120,
-          feedback: '追蹤只 +120，但你沒有散播未查證的內容。' },
-        { id: 'a1_hold', label: '先不發，繼續查', tone: 'cautious', followerDelta: 0,
-          feedback: '你按住了手。流量沒動，但你爭取到查證的時間。' },
+        { id: 'a1_impulse', label: '搶快！標題下「阿聲疑遭人加害，現場流出」', tone: 'impulse', followerDelta: 1800, trustDelta: -18,
+          feedback: '流量暴衝，但你散播了沒查證的「現場截圖」。',
+          knewText: '你明明放大過、知道那張圖時間對不上，還是為了流量發了出去。' },
+        { id: 'a1_expose', label: '揭穿：「這張『現場圖』時間對不上，是舊畫面，別亂傳」', tone: 'expose', requiresClue: true, followerDelta: 900, trustDelta: 15,
+          feedback: '你用事實幫大家踩了煞車。讀者開始信任你的判斷。' },
+        { id: 'a1_cautious', label: '先寫「消息待查證，呼籲勿傳未證實畫面」', tone: 'cautious', followerDelta: 120, trustDelta: 5,
+          feedback: '追蹤只微增，但你沒有散播未查證的內容。' },
       ],
     },
   },
@@ -256,6 +283,7 @@ export const acts = [
     no: 2,
     title: '指向',
     teach: 'zoom',
+    clueId: 'c_receipt_ps',
     notification: { app: 'messages', text: '有人私訊你「獨家證據」…' },
     briefing:
       '一個匿名帳號私訊你，塞來「Lisa 買毒收據」和「爭吵錄音」，說前經紀人 Lisa 早有預謀。\n全網開始出征 Lisa。跟風發文會爆量——但這些「證據」放大看，經得起檢查嗎？',
@@ -265,10 +293,13 @@ export const acts = [
     decision: {
       prompt: '全網都在罵 Lisa，你跟不跟？',
       options: [
-        { id: 'a2_impulse', label: '跟！發「鐵證曝光：Lisa 早有預謀」', tone: 'impulse', followerDelta: 5200,
-          feedback: '流量爆炸 +5200！但那張收據、那段錄音是真的嗎？' },
-        { id: 'a2_cautious', label: '發「證據有疑點，尚待查證」', tone: 'cautious', followerDelta: 300,
-          feedback: '你頂住了風向。追蹤只微增，但你沒有指控無辜的人。' },
+        { id: 'a2_impulse', label: '跟！發「鐵證曝光：Lisa 早有預謀」', tone: 'impulse', followerDelta: 5200, trustDelta: -25,
+          feedback: '流量爆炸！但你把一個無辜的人推上了火刑台。',
+          knewText: '你已經看出收據是 P 的，卻還是發了「鐵證」——這比不知情更糟。' },
+        { id: 'a2_expose', label: '揭穿：「這張收據是合成的，別被帶風向出征 Lisa」', tone: 'expose', requiresClue: true, followerDelta: 1500, trustDelta: 18,
+          feedback: '在全網喊打時你逆風查證，這一篇讓很多人冷靜下來。' },
+        { id: 'a2_cautious', label: '發「證據有疑點，尚待查證」', tone: 'cautious', followerDelta: 300, trustDelta: 6,
+          feedback: '你頂住了風向，沒有指控無辜的人。' },
       ],
     },
   },
@@ -277,19 +308,23 @@ export const acts = [
     no: 3,
     title: '反轉',
     teach: 'reverse',
+    clueId: 'c_reverse_old',
     notification: { app: 'feed', text: '風向突變！新證據指向另一個人…' },
     briefing:
       'Lisa 出面反駁。緊接著「新證據」冒出：一張「當晚後門畫面」指向阿聲的合夥人，輿論瞬間掉頭。\n反轉來得太快——這張新圖，來源查得到嗎？',
     instinct: '反轉來得也太快了……這張「當晚」的照片，我怎麼好像在哪看過？',
-    evidenceIds: ['ev_new_scene'],
+    evidenceIds: ['ev_new_scene', 'ev_rival_2'],
     tip: '在放大檢視裡，可疑的圖能「以圖搜圖」，看它到底從哪來。',
     decision: {
       prompt: '風向轉了，你要跟著轉去罵合夥人嗎？',
       options: [
-        { id: 'a3_impulse', label: '跟！「驚天反轉：真兇是合夥人」', tone: 'impulse', followerDelta: 6100,
-          feedback: '+6100！可是你連反轉的那張圖都沒查來源…' },
-        { id: 'a3_cautious', label: '先反查那張圖再說', tone: 'cautious', followerDelta: 200,
-          feedback: '你沒有被反轉牽著走。新資訊出現時，你選擇先查證。' },
+        { id: 'a3_impulse', label: '跟！「驚天反轉：真兇是合夥人」', tone: 'impulse', followerDelta: 6100, trustDelta: -22,
+          feedback: '+6100！可是你連反轉的那張圖都沒查來源，就又指控了下一個人。',
+          knewText: '你已經反查出那是舊圖，卻還是跟著反轉帶風向。' },
+        { id: 'a3_expose', label: '揭穿：「這張『當晚圖』是 2020 年舊圖，反轉是假的」', tone: 'expose', requiresClue: true, followerDelta: 1800, trustDelta: 20,
+          feedback: '你沒被反轉牽著走，還戳破了它。這需要定力。' },
+        { id: 'a3_cautious', label: '先按住，不跟這波反轉', tone: 'cautious', followerDelta: 200, trustDelta: 5,
+          feedback: '新資訊出現時，你選擇先查證，而不是馬上掉頭。' },
       ],
     },
   },
@@ -298,6 +333,7 @@ export const acts = [
     no: 4,
     title: '深挖',
     teach: 'account',
+    clueId: 'c_tipster_sock',
     notification: { app: 'browser', text: '到底是誰一直在餵料？' },
     briefing:
       '你開始起疑：從頭到尾餵你「證據」的那個匿名帳號，到底是誰？\n點進去查查它的底細。',
@@ -307,10 +343,13 @@ export const acts = [
     decision: {
       prompt: '查完爆料帳號，你的判斷是？',
       options: [
-        { id: 'a4_sock', label: '這是個為本案量身開的分身帳號', tone: 'cautious', followerDelta: 400,
-          feedback: '你抓到了：消息源本身就不可信。' },
-        { id: 'a4_trust', label: '管他的，有料就是好料，繼續發', tone: 'impulse', followerDelta: 3000,
-          feedback: '+3000，但你把一個假帳號的話當成了真相。' },
+        { id: 'a4_expose', label: '公開示警：「爆料帳號是事件前一天開的分身，別信」', tone: 'expose', requiresClue: true, followerDelta: 1200, trustDelta: 18,
+          feedback: '你把矛頭轉向真正的問題：消息源本身就不可信。' },
+        { id: 'a4_cautious', label: '心裡存疑，先不採用它的料', tone: 'cautious', followerDelta: 300, trustDelta: 6,
+          feedback: '你沒有全盤採信一個來路不明的帳號。' },
+        { id: 'a4_trust', label: '管他的，有料就是好料，繼續發', tone: 'impulse', followerDelta: 3000, trustDelta: -20,
+          feedback: '+3000，但你把一個假帳號的話當成了真相。',
+          knewText: '你已經查出它是分身帳號，卻還是拿它的料衝流量。' },
       ],
     },
   },
@@ -319,6 +358,7 @@ export const acts = [
     no: 5,
     title: '裁決',
     teach: 'timeline',
+    clueId: 'c_alibi_conflict',
     notification: { app: 'evidence', text: '把所有線索攤開，做最後判斷。' },
     briefing:
       '媒體開始引用你的貼文，你的每個字都在放大。\n把手上所有線索放上時間軸，交叉比對，然後下最終定論：這到底是誰的責任？',
@@ -328,12 +368,15 @@ export const acts = [
     decision: {
       prompt: '最終定論：這起事件，你要向大眾說什麼？',
       options: [
-        { id: 'a5_lisa', label: '定罪 Lisa', tone: 'impulse', followerDelta: 2000,
-          feedback: '你指控了一個有不在場證明的人。' },
-        { id: 'a5_partner', label: '定罪合夥人', tone: 'impulse', followerDelta: 2000,
-          feedback: '你採信了一張三年前的舊圖。' },
-        { id: 'a5_nobody', label: '沒有足夠證據指控任何人，呼籲等官方調查', tone: 'cautious', followerDelta: 500,
+        { id: 'a5_expose', label: '公布真相：「時間軸矛盾，Lisa 有不在場證明，這是被操縱的獵巫」', tone: 'expose', requiresClue: true, followerDelta: 1500, trustDelta: 22,
+          feedback: '你把整起帶風向攤在陽光下。這才是媒體該做的事。' },
+        { id: 'a5_nobody', label: '沒有足夠證據指控任何人，呼籲等官方調查', tone: 'cautious', followerDelta: 500, trustDelta: 12,
           feedback: '在所有人都在站邊時，你選擇了「我不知道，先查證」。' },
+        { id: 'a5_lisa', label: '定罪 Lisa', tone: 'impulse', followerDelta: 2000, trustDelta: -25,
+          feedback: '你指控了一個有不在場證明的人。',
+          knewText: '你已經看出時間軸矛盾，卻還是定罪了 Lisa。' },
+        { id: 'a5_partner', label: '定罪合夥人', tone: 'impulse', followerDelta: 2000, trustDelta: -20,
+          feedback: '你採信了一張三年前的舊圖。' },
       ],
     },
   },
@@ -377,7 +420,7 @@ export const ending = {
   truth:
     '三天後官方調查結果公布：阿聲是**心臟舊疾發作猝死，沒有人下毒、沒有人加害**。\n' +
     '所有「證據」——現場截圖、買毒收據、爭吵錄音、後門畫面——全是同一個匿名帳號 @truth_teller_x 偽造的。\n' +
-    '而這個帳號，其實是另一個跟你搶流量的小編。他賭的，就是「大家看到聳動的東西不會查證」。',
+    '而這個帳號的真身，就是那個全程在旁邊酸你、說「我手上有獨家」的同業小編 **@hot_daily_scoop（熱點日報）**。他一邊餵你假料、一邊看你上鉤。他賭的，就是「大家看到聳動的東西不會查證」。',
   clueOrder: [
     'c_time_mismatch',
     'c_receipt_ps',
@@ -386,4 +429,14 @@ export const ending = {
     'c_tipster_sock',
     'c_alibi_conflict',
   ],
+  // 帶回現實的查核工具（台灣）
+  realTools: [
+    { name: 'MyGoPen 麥擱騙', desc: 'LINE 上把可疑訊息貼給它，幫你查是不是假消息。', url: 'https://www.mygopen.com/' },
+    { name: 'Cofacts 真的假的', desc: '開源的協作查核，查訊息、看網友與查核回應。', url: 'https://cofacts.tw/' },
+    { name: '台灣事實查核中心', desc: '獨立的事實查核組織，查政治、健康、社會謠言。', url: 'https://tfc-taiwan.org.tw/' },
+    { name: 'Google 圖片反搜', desc: '把可疑照片丟進去，看它是不是舊圖被重用。', url: 'https://images.google.com/' },
+  ],
 }
+
+// 公信力起始值（0–100）
+export const START_TRUST = 60

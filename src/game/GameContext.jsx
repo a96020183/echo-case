@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, useState, useCallback } from 'react'
-import { acts, evidence, you, ending } from './data/content.js'
+import { acts, evidence, you, ending, START_TRUST } from './data/content.js'
+import { recordPlay } from './stats.js'
 
 const GameCtx = createContext(null)
 
@@ -14,6 +15,7 @@ const START = {
   tutorialDone: false,
   actIndex: 0,
   followers: you.startFollowers,
+  trust: START_TRUST, // 公信力 0–100
   cluesFound: [], // clue id 陣列
   verified: [], // evidence id：玩家「查核過」的
   reversed: [], // 已反查的 evidence id
@@ -22,6 +24,8 @@ const START = {
   choices: {}, // { actId: optionId }
   impulseCount: 0,
   cautiousCount: 0,
+  exposeCount: 0, // 揭穿次數
+  recorded: false, // 是否已寫入數據牆
 }
 
 export function GameProvider({ children }) {
@@ -56,20 +60,40 @@ export function GameProvider({ children }) {
     setS((p) => (p.searchUnlocks.includes(key) ? p : { ...p, searchUnlocks: [...p.searchUnlocks, key] }))
   }, [])
 
-  // 做決策 → 記錄、加流量、進下一幕
-  const decide = useCallback((actId, option) => {
+  // 做決策 → 記錄、加流量/公信力、進下一幕
+  //   clueKnown：做決定當下是否已查到本幕破綻（明知造假仍發 → 加重扣公信力）
+  const decide = useCallback((actId, option, clueKnown = false) => {
     setS((p) => {
       const nextIndex = p.actIndex + 1
-      const isLastPlayable = nextIndex >= acts.length - 1 // act6 是結局
-      return {
+      const goEnding = acts[nextIndex]?.isEnding
+
+      let trustDelta = option.trustDelta || 0
+      // 明知造假仍衝動發文：額外扣公信力
+      if (option.tone === 'impulse' && clueKnown) trustDelta -= 8
+
+      const next = {
         ...p,
         choices: { ...p.choices, [actId]: option.id },
         followers: Math.max(0, p.followers + (option.followerDelta || 0)),
+        trust: Math.max(0, Math.min(100, p.trust + trustDelta)),
         impulseCount: option.tone === 'impulse' ? p.impulseCount + 1 : p.impulseCount,
         cautiousCount: option.tone === 'cautious' ? p.cautiousCount + 1 : p.cautiousCount,
+        exposeCount: option.tone === 'expose' ? p.exposeCount + 1 : p.exposeCount,
         actIndex: nextIndex,
-        screen: acts[nextIndex]?.isEnding ? 'ending' : p.screen,
+        screen: goEnding ? 'ending' : p.screen,
       }
+
+      // 進結局時把這局寫入數據牆（只寫一次）
+      if (goEnding && !p.recorded) {
+        recordPlay({
+          cluesFound: next.cluesFound,
+          impulseCount: next.impulseCount,
+          exposeCount: next.exposeCount,
+          totalClues: ending.clueOrder.length,
+        })
+        next.recorded = true
+      }
+      return next
     })
   }, [])
 
