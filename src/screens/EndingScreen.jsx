@@ -1,12 +1,16 @@
 import { useMemo } from 'react'
 import { useGame } from '../game/GameContext.jsx'
-import { evidence, ending, skills, you } from '../game/data/content.js'
+import { evidence, ending, skills, you, extraClues } from '../game/data/content.js'
 import { loadStats, deriveInsights } from '../game/stats.js'
 
 function buildClueLookup() {
   const map = {}
   Object.values(evidence).forEach((ev) => {
     if (ev.clue) map[ev.clue.id] = { ...ev.clue, evAuthor: ev.author }
+  })
+  // 併入不在證據卡上的破綻（例如搜尋型）
+  Object.values(extraClues || {}).forEach((c) => {
+    map[c.id] = { ...c }
   })
   return map
 }
@@ -45,13 +49,15 @@ export default function EndingScreen() {
   const reach = impulse * 40000
   const beatPct = Math.min(96, Math.round((foundCount / totalClues) * 60 + (trust / 100) * 34) + 2)
 
-  // 稱號：結合「抓破綻」與「公信力」
+  const caughtBoss = found.includes('c_rival_knew')
+
+  // 稱號：結合「抓破綻」與「公信力」（滿 10 題很難，一般玩家找不齊）
   const rankLabel =
-    foundCount === totalClues && trust >= 75
+    foundCount >= 9 && trust >= 75
       ? '事實查核大師'
-      : foundCount >= 4 && trust >= 55
+      : foundCount >= 6 && trust >= 55
         ? '清醒的旁觀者'
-        : foundCount >= 2
+        : foundCount >= 3
           ? '半信半疑者'
           : '被帶風向的人'
 
@@ -84,7 +90,12 @@ export default function EndingScreen() {
         <div className="mt-3 inline-block rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-sm font-bold text-accent">
           稱號：{rankLabel}
         </div>
-        <p className="mt-2 text-xs text-mute">你比 {beatPct}% 的玩家更能識破假消息。</p>
+        {caughtBoss && (
+          <div className="mt-2 inline-block rounded-full border border-brand/50 bg-brand/15 px-3 py-1 text-sm font-bold text-brand">
+            👑 你抓到了魔王破綻——識破了幕後黑手
+          </div>
+        )}
+        <p className="mt-2 text-xs text-mute">10 個破綻越後面越難，一般人找不齊。你比 {beatPct}% 的玩家更能識破假消息。</p>
       </div>
 
       {/* 逐條回放 */}
@@ -99,13 +110,16 @@ export default function EndingScreen() {
             return (
               <div
                 key={cid}
-                className={`rounded-xl border p-3 ${got ? 'border-ok/40 bg-ok/5' : 'border-danger/40 bg-danger/5'}`}
+                className={`rounded-xl border p-3 ${
+                  clue.boss ? (got ? 'border-brand/50 bg-brand/10' : 'border-brand/40 bg-brand/5') : got ? 'border-ok/40 bg-ok/5' : 'border-danger/40 bg-danger/5'
+                }`}
               >
                 <div className="flex items-center gap-2">
                   <span>{got ? '🟢' : '🔴'}</span>
                   <span className="text-sm font-semibold text-white">
                     {sk?.icon} {sk?.name}
                   </span>
+                  {clue.boss && <span className="rounded bg-brand/30 px-1.5 py-0.5 text-[10px] font-bold text-brand">👑 魔王</span>}
                   <span className="ml-auto text-[11px] text-mute">來源：{clue.evAuthor}</span>
                 </div>
                 <p className="mt-1 text-sm text-white/85">{clue.truth}</p>

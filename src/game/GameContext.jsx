@@ -21,6 +21,7 @@ const START = {
   reversed: [], // 已反查的 evidence id
   accountsChecked: [], // 已查帳號的 evidence id
   searchUnlocks: [], // 例如 'health'
+  followed: [], // 已追蹤的帳號 at
   choices: {}, // { actId: optionId }
   impulseCount: 0,
   cautiousCount: 0,
@@ -58,6 +59,14 @@ export function GameProvider({ children }) {
   const unlockSearch = useCallback((key) => {
     if (!key) return
     setS((p) => (p.searchUnlocks.includes(key) ? p : { ...p, searchUnlocks: [...p.searchUnlocks, key] }))
+  }, [])
+
+  const toggleFollow = useCallback((at) => {
+    if (!at) return
+    setS((p) => ({
+      ...p,
+      followed: p.followed.includes(at) ? p.followed.filter((a) => a !== at) : [...p.followed, at],
+    }))
   }, [])
 
   // 做決策 → 記錄、加流量/公信力、進下一幕
@@ -109,6 +118,7 @@ export function GameProvider({ children }) {
       isClueFound: (clueId) => s.cluesFound.includes(clueId),
       isReversed: (evId) => s.reversed.includes(evId),
       isAccountChecked: (evId) => s.accountsChecked.includes(evId),
+      isFollowing: (at) => s.followed.includes(at),
       start,
       restart,
       finishTutorial,
@@ -116,10 +126,11 @@ export function GameProvider({ children }) {
       markReversed,
       markAccountChecked,
       unlockSearch,
+      toggleFollow,
       decide,
       evidence,
     }
-  }, [s, start, restart, finishTutorial, findClue, markReversed, markAccountChecked, unlockSearch, decide])
+  }, [s, start, restart, finishTutorial, findClue, markReversed, markAccountChecked, unlockSearch, toggleFollow, decide])
 
   return <GameCtx.Provider value={value}>{children}</GameCtx.Provider>
 }

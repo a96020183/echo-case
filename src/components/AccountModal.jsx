@@ -2,7 +2,8 @@ import { useGame } from '../game/GameContext.jsx'
 
 // Threads 個人檔案風。查帳號註冊日/貼文/歷史；藏 account 破綻的帳號查看即揭露。
 export default function AccountModal({ ev, onClose }) {
-  const { findClue, markAccountChecked, isClueFound } = useGame()
+  const { findClue, markAccountChecked, isClueFound, isFollowing, toggleFollow } = useGame()
+  const following = isFollowing(ev.at)
   const acc = ev.account || {}
   const isAccountClue = ev.clue?.method === 'account'
   const found = isAccountClue ? isClueFound(ev.clue.id) : false
@@ -51,7 +52,14 @@ export default function AccountModal({ ev, onClose }) {
 
         {/* Threads 藥丸鈕 */}
         <div className="mt-4 flex gap-2">
-          <button className="flex-1 rounded-xl bg-white py-2 text-sm font-semibold text-black">追蹤</button>
+          <button
+            onClick={() => toggleFollow(ev.at)}
+            className={`flex-1 rounded-xl py-2 text-sm font-semibold transition ${
+              following ? 'border border-line text-white/80 hover:border-white/50' : 'bg-white text-black hover:bg-white/90'
+            }`}
+          >
+            {following ? '追蹤中 ✓' : '追蹤'}
+          </button>
           <button onClick={onClose} className="flex-1 rounded-xl border border-line py-2 text-sm font-semibold text-white">
             關閉
           </button>

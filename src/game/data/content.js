@@ -13,7 +13,8 @@ export const skills = {
   reverse: { key: 'reverse', icon: '♻️', name: '反查來源', desc: '以圖搜圖，看看這張「現場圖」是不是舊聞舊圖被拿來重用。' },
   account: { key: 'account', icon: '👤', name: '查帳號', desc: '看爆料帳號的註冊日與歷史，臨時小號可信度低。' },
   timeline: { key: 'timeline', icon: '🧭', name: '交叉比對', desc: '把多條資訊放上時間軸，看有沒有互相矛盾。' },
-  motive: { key: 'motive', icon: '🎯', name: '問誰得利', desc: '想想「這件事誰獲利」，動機常指向真正的操縱者。' },
+  search: { key: 'search', icon: '🌐', name: '查資料', desc: '主動搜尋當事人背景，很多真相其實一搜就有。' },
+  motive: { key: 'motive', icon: '🎯', name: '問誰得利', desc: '想想「這件事誰獲利、誰太早知情」，動機常指向真正的操縱者。' },
 }
 
 // 你（玩家）扮演的粉專
@@ -38,12 +39,12 @@ export const evidence = {
     at: '@clip_zone',
     avatar: '📺',
     time: '19:32',
-    body: '【震驚】阿聲直播到一半突然倒下！現場畫面流出⚠️',
+    body: '【震驚】瘋瘋直播到一半突然倒下！現場畫面流出⚠️',
     likes: 12800,
     shares: 4300,
     // 程式繪製的假截圖
     shot: {
-      caption: 'LIVE · 阿聲的頻道',
+      caption: 'LIVE · 瘋瘋的頻道',
       timestampText: '18:47', // 破綻：比事件（19:30 倒下）還早
       scene: 'studio',
     },
@@ -53,7 +54,7 @@ export const evidence = {
       method: 'zoom',
       hotspot: { x: 72, y: 6, w: 26, h: 12 }, // 右上角時間戳
       hint: '截圖右上角有個時間…',
-      found: '截圖時間顯示 18:47，但阿聲是 19:30 才倒下的。',
+      found: '截圖時間顯示 18:47，但瘋瘋是 19:30 才倒下的。',
       truth: '這張「現場截圖」拍攝時間比事件還早 43 分鐘——是事件前的畫面被拿來冒充現場。',
     },
   },
@@ -65,7 +66,7 @@ export const evidence = {
     at: '@amy_here',
     avatar: '🙋',
     time: '19:40',
-    body: '我剛好在攝影棚附近！看到有人神色慌張跑出來，一定有內情… #阿聲 #內幕',
+    body: '我剛好在攝影棚附近！看到有人神色慌張跑出來，一定有內情… #瘋瘋 #內幕',
     likes: 8900,
     shares: 3100,
     account: {
@@ -95,6 +96,14 @@ export const evidence = {
     body: '大家在瞎猜喔？我手上有你們都沒有的東西，時候到了自然放。先追蹤起來 😏 #獨家在後頭',
     likes: 5200,
     shares: 1800,
+    clue: {
+      id: 'c_rival_boast',
+      skill: 'motive',
+      method: 'insight',
+      hint: '這個同業說「手上有獨家」…',
+      found: '事件才爆發 15 分鐘，熱點日報就聲稱「手上有你們沒有的東西」。',
+      truth: '事件剛發生，他哪來的「獨家料」？除非那些料是他自己準備好的。這是第一個可疑點。',
+    },
   },
 
   // 第二幕
@@ -132,7 +141,7 @@ export const evidence = {
     at: '@truth_teller_x',
     avatar: '🕵️',
     time: '20:12',
-    body: '這是阿聲和 Lisa 上週吵架的錄音，你聽聽。',
+    body: '這是瘋瘋和 Lisa 上週吵架的錄音，你聽聽。',
     audio: {
       label: '爭吵錄音_final.mp3',
       duration: '0:37',
@@ -158,7 +167,7 @@ export const evidence = {
     at: '@leak_share',
     avatar: '📢',
     time: '21:05',
-    body: '#快訊 疑似阿聲合夥人當晚出現在攝影棚後門！這才是關鍵人物？',
+    body: '#快訊 疑似瘋瘋合夥人當晚出現在攝影棚後門！這才是關鍵人物？',
     likes: 15600,
     shares: 7200,
     shot: {
@@ -176,7 +185,7 @@ export const evidence = {
       reverseResult: {
         source: 'NightNews · 2020-08-14',
         title: '某巷弄治安事件現場',
-        note: '與「阿聲事件」無關，時間早三年。',
+        note: '與「瘋瘋事件」無關，時間早三年。',
       },
     },
   },
@@ -191,6 +200,15 @@ export const evidence = {
     body: '早說了吧，重點根本不是 Lisa。有些小編就是愛跟風蹭流量，蠢。（我沒說是誰喔😏）我的爆料，你們早晚會看到。',
     likes: 8800,
     shares: 3400,
+    clue: {
+      id: 'c_rival_knew',
+      skill: 'motive',
+      method: 'insight',
+      boss: true,
+      hint: '他說「重點不是 Lisa」的時間，會不會太早了？',
+      found: '熱點日報在 21:10 就斷言「不是 Lisa」——但 Lisa 的不在場證明 21:30 才公開。',
+      truth: '【魔王破綻】他怎麼會在 Lisa 自清之前，就知道兇手不是她？除非他從頭就知道全部是假的——因為造假的人，就是他。這是整起事件的破口。',
+    },
   },
 
   // 第四幕
@@ -259,16 +277,16 @@ export const acts = [
     title: '爆發',
     teach: 'timestamp',
     clueId: 'c_time_mismatch',
-    notification: { app: 'feed', text: '網紅「阿聲」直播中突然倒下，全網瘋傳！' },
+    notification: { app: 'feed', text: '網紅「瘋瘋」直播中突然倒下，全網瘋傳！' },
     briefing:
-      '晚上 19:30，人氣網紅「阿聲」直播到一半突然倒地、畫面斷訊。全網炸鍋。\n你是粉專「觀點日報」的小編——手最快的人最有流量。先看看現在流傳的東西，再決定要不要發文。',
+      '晚上 19:30，人氣網紅「瘋瘋」直播到一半突然倒地、畫面斷訊。全網炸鍋。\n你是粉專「觀點日報」的小編——手最快的人最有流量。先看看現在流傳的東西，再決定要不要發文。',
     instinct: '等等……這張「現場截圖」，真的是剛剛拍的嗎？',
     evidenceIds: ['ev_live_shot', 'ev_witness_story', 'ev_rival_1'],
     tip: '圖片都能點開放大 🔍——馬腳常常藏在你懶得看的細節裡。',
     decision: {
       prompt: '事件剛爆，你要怎麼發第一篇？',
       options: [
-        { id: 'a1_impulse', label: '搶快！標題下「阿聲疑遭人加害，現場流出」', tone: 'impulse', followerDelta: 1800, trustDelta: -18,
+        { id: 'a1_impulse', label: '搶快！標題下「瘋瘋疑遭人加害，現場流出」', tone: 'impulse', followerDelta: 1800, trustDelta: -18,
           feedback: '流量暴衝，但你散播了沒查證的「現場截圖」。',
           knewText: '你明明放大過、知道那張圖時間對不上，還是為了流量發了出去。' },
         { id: 'a1_expose', label: '揭穿：「這張『現場圖』時間對不上，是舊畫面，別亂傳」', tone: 'expose', requiresClue: true, followerDelta: 900, trustDelta: 15,
@@ -311,7 +329,7 @@ export const acts = [
     clueId: 'c_reverse_old',
     notification: { app: 'feed', text: '風向突變！新證據指向另一個人…' },
     briefing:
-      'Lisa 出面反駁。緊接著「新證據」冒出：一張「當晚後門畫面」指向阿聲的合夥人，輿論瞬間掉頭。\n反轉來得太快——這張新圖，來源查得到嗎？',
+      'Lisa 出面反駁。緊接著「新證據」冒出：一張「當晚後門畫面」指向瘋瘋的合夥人，輿論瞬間掉頭。\n反轉來得太快——這張新圖，來源查得到嗎？',
     instinct: '反轉來得也太快了……這張「當晚」的照片，我怎麼好像在哪看過？',
     evidenceIds: ['ev_new_scene', 'ev_rival_2'],
     tip: '在放大檢視裡，可疑的圖能「以圖搜圖」，看它到底從哪來。',
@@ -397,18 +415,21 @@ export const acts = [
 // ------------------------------------------------------------
 export const search = {
   'lisa': [
-    { title: 'Lisa 是誰？阿聲前經紀人背景整理', snippet: '曾任阿聲經紀人，去年約滿離職…', fake: false },
+    { title: 'Lisa 是誰？瘋瘋前經紀人背景整理', snippet: '曾任瘋瘋經紀人，去年約滿離職…', fake: false },
     { title: '【爆】Lisa 早有預謀？網友肉搜中', snippet: '匿名爆料指出…（消息未經證實）', fake: true },
   ],
-  '阿聲': [
-    { title: '網紅阿聲個人資料 / 頻道', snippet: '訂閱破百萬的實況主，曾公開提及有心臟舊疾。', fake: false, key: true },
-    { title: '阿聲猝死內幕大公開', snippet: '標題聳動的內容農場文…', fake: true },
+  '瘋瘋': [
+    { title: '網紅瘋瘋個人資料 / 頻道', snippet: '訂閱破百萬的實況主，曾公開提及有心臟舊疾。', fake: false, key: true },
+    { title: '瘋瘋猝死內幕大公開', snippet: '標題聳動的內容農場文…', fake: true },
   ],
-  '阿聲 病史': [
-    { title: '阿聲兩年前直播提到「心臟不太好」片段', snippet: '本人曾說醫生提醒要注意心律…', fake: false, key: true, unlocks: 'health' },
+  '瘋瘋 病史': [
+    { title: '瘋瘋兩年前直播提到「心臟不太好」片段', snippet: '本人曾說醫生提醒要注意心律…', fake: false, key: true, unlocks: 'health', clueId: 'c_health_search' },
   ],
   '心臟': [
-    { title: '阿聲曾自述心臟舊疾', snippet: '過往直播與訪談紀錄。', fake: false, key: true, unlocks: 'health' },
+    { title: '瘋瘋曾自述心臟舊疾', snippet: '過往直播與訪談紀錄。', fake: false, key: true, unlocks: 'health', clueId: 'c_health_search' },
+  ],
+  '病史': [
+    { title: '瘋瘋曾自述心臟舊疾', snippet: '過往直播與訪談紀錄，醫生提醒注意心律。', fake: false, key: true, unlocks: 'health', clueId: 'c_health_search' },
   ],
   'truth_teller_x': [
     { title: '@truth_teller_x 帳號資訊', snippet: '註冊於事件前一天，貼文極少。', fake: false, key: true },
@@ -418,16 +439,20 @@ export const search = {
 // 結局：真相與回放設定
 export const ending = {
   truth:
-    '三天後官方調查結果公布：阿聲是**心臟舊疾發作猝死，沒有人下毒、沒有人加害**。\n' +
+    '三天後官方調查結果公布：瘋瘋是**心臟舊疾發作猝死，沒有人下毒、沒有人加害**。\n' +
     '所有「證據」——現場截圖、買毒收據、爭吵錄音、後門畫面——全是同一個匿名帳號 @truth_teller_x 偽造的。\n' +
     '而這個帳號的真身，就是那個全程在旁邊酸你、說「我手上有獨家」的同業小編 **@hot_daily_scoop（熱點日報）**。他一邊餵你假料、一邊看你上鉤。他賭的，就是「大家看到聳動的東西不會查證」。',
   clueOrder: [
     'c_time_mismatch',
+    'c_witness_fake',
     'c_receipt_ps',
     'c_audio_splice',
     'c_reverse_old',
+    'c_health_search',
+    'c_rival_boast',
     'c_tipster_sock',
     'c_alibi_conflict',
+    'c_rival_knew',
   ],
   // 帶回現實的查核工具（台灣）
   realTools: [
@@ -436,6 +461,18 @@ export const ending = {
     { name: '台灣事實查核中心', desc: '獨立的事實查核組織，查政治、健康、社會謠言。', url: 'https://tfc-taiwan.org.tw/' },
     { name: 'Google 圖片反搜', desc: '把可疑照片丟進去，看它是不是舊圖被重用。', url: 'https://images.google.com/' },
   ],
+}
+
+// 不在證據卡上的破綻（例如搜尋型），供結局回放對照
+export const extraClues = {
+  c_health_search: {
+    id: 'c_health_search',
+    skill: 'search',
+    method: 'search',
+    evAuthor: '搜尋結果',
+    found: '搜尋「瘋瘋 病史」發現他兩年前就自述有心臟舊疾。',
+    truth: '瘋瘋本來就有心臟宿疾——「被下毒」的前提從一開始就站不住腳。一搜就有，但很少人會去搜。',
+  },
 }
 
 // 公信力起始值（0–100）

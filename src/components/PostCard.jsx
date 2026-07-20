@@ -8,9 +8,37 @@ export default function PostCard({ ev, onOpenAccount, variant = 'thread' }) {
   const { findClue, isClueFound } = useGame()
   const [zoom, setZoom] = useState(false)
   const [liked, setLiked] = useState(false)
+  const [showInsight, setShowInsight] = useState(false)
   const hasMedia = ev.shot || ev.audio
   const clueFound = ev.clue ? isClueFound(ev.clue.id) : false
+  const isInsight = ev.clue?.method === 'insight'
   const name = ev.at?.replace('@', '') || ev.author
+
+  const revealInsight = () => {
+    setShowInsight(true)
+    if (!clueFound) findClue(ev.clue.id, ev.id)
+  }
+
+  const InsightBlock = isInsight && (
+    <div className="mt-2">
+      {!(showInsight || clueFound) ? (
+        <button
+          onClick={revealInsight}
+          className="inline-flex items-center gap-1 rounded-full border border-[#333] px-2.5 py-1 text-xs text-white/70 hover:border-warn/60 hover:text-warn"
+        >
+          🤔 這則貼文，哪裡怪怪的？
+        </button>
+      ) : (
+        <div className={`animate-fadeup rounded-xl border p-3 ${ev.clue.boss ? 'border-brand/50 bg-brand/10' : 'border-danger/40 bg-danger/10'}`}>
+          <p className={`text-sm font-bold ${ev.clue.boss ? 'text-brand' : 'text-danger'}`}>
+            {ev.clue.boss ? '👑 魔王破綻！' : '🚩 抓到破綻！'}
+          </p>
+          <p className="mt-1 text-sm text-white/90">{ev.clue.found}</p>
+          <p className="mt-2 text-xs text-mute">{ev.clue.truth}</p>
+        </div>
+      )}
+    </div>
+  )
 
   const Media = hasMedia && (
     <div className="mt-2">
@@ -77,6 +105,7 @@ export default function PostCard({ ev, onOpenAccount, variant = 'thread' }) {
         <p className="mt-0.5 whitespace-pre-line text-[15px] leading-[1.45] text-white">{ev.body}</p>
 
         {Media}
+        {InsightBlock}
 
         {/* Threads 動作列 */}
         <div className="-ml-2 mt-2 flex items-center text-white">

@@ -28,10 +28,10 @@ export default function IntroScreen() {
         </p>
       </div>
 
-      <div className="mt-4 rounded-xl border border-line bg-panel2 p-3 text-left text-xs text-mute">
+      <div className="mt-4 rounded-xl border border-line bg-panel2 p-4 text-left text-sm leading-relaxed text-white/75">
         你是粉專「{you.handle}」小編（{you.startFollowers.toLocaleString()} 追蹤）。
-        這裡沒有教學、沒有箭頭。破綻藏在細節裡，就像真的假消息一樣。
-        <span className="text-white/80"> 你，抓得到幾個？</span>
+        這裡沒有教學、沒有箭頭，破綻藏在細節裡，就像真的假消息一樣。
+        <span className="mt-1 block text-base font-bold text-white">全場藏了 10 個破綻——你，抓得到幾個？</span>
       </div>
 
       <button

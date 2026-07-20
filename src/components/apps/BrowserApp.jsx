@@ -5,7 +5,7 @@ import AccountModal from '../AccountModal.jsx'
 
 // 假搜尋引擎 + 帳號反查。輸入關鍵字比對 search 表；查到關鍵資訊會 unlock。
 export default function BrowserApp({ items }) {
-  const { unlockSearch } = useGame()
+  const { unlockSearch, findClue } = useGame()
   const [q, setQ] = useState('')
   const [results, setResults] = useState(null)
   const [account, setAccount] = useState(null)
@@ -17,7 +17,11 @@ export default function BrowserApp({ items }) {
     const key = q.trim().toLowerCase()
     const matched = search[key] || search[q.trim()] || null
     setResults(matched)
-    if (matched) matched.forEach((r) => r.unlocks && unlockSearch(r.unlocks))
+    if (matched)
+      matched.forEach((r) => {
+        if (r.unlocks) unlockSearch(r.unlocks)
+        if (r.clueId) findClue(r.clueId) // 搜尋型破綻
+      })
   }
 
   return (
@@ -36,7 +40,7 @@ export default function BrowserApp({ items }) {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && run()}
-          placeholder="搜尋（試試「阿聲」「Lisa」「阿聲 病史」）"
+          placeholder="搜尋（試試「瘋瘋」「Lisa」「瘋瘋 病史」）"
           className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-mute"
         />
         {q && (
