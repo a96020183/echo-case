@@ -3,54 +3,104 @@ import FakeShot from './FakeShot.jsx'
 import ImageZoom from './ImageZoom.jsx'
 import { useGame } from '../game/GameContext.jsx'
 
-// variant: 'thread'（Threads 貼文，力求擬真） | 'dm'（私訊對話）
+// variant: 'thread'（Threads 貼文） | 'dm'（私訊對話）
+// 難度：
+//   easy → 有問題的東西直接給「放大檢查 / 這則怪怪的」按鈕
+//   hard → 每則都只有「🚩 可疑」，判斷錯（沒問題卻標可疑、或圖點錯地方）＝誤判
 export default function PostCard({ ev, onOpenAccount, variant = 'thread' }) {
-  const { findClue, isClueFound } = useGame()
+  const { findClue, isClueFound, isHard, addMiss } = useGame()
   const [zoom, setZoom] = useState(false)
   const [liked, setLiked] = useState(false)
-  const [showInsight, setShowInsight] = useState(false)
+  const [showReveal, setShowReveal] = useState(false)
+  const [missed, setMissed] = useState(false)
+
+  const clue = ev.clue
+  const clueFound = clue ? isClueFound(clue.id) : false
   const hasMedia = ev.shot || ev.audio
-  const clueFound = ev.clue ? isClueFound(ev.clue.id) : false
-  const isInsight = ev.clue?.method === 'insight'
+  const isInsight = clue?.method === 'insight'
   const name = ev.at?.replace('@', '') || ev.author
 
-  const revealInsight = () => {
-    setShowInsight(true)
-    if (!clueFound) findClue(ev.clue.id, ev.id)
+  const revealClue = () => {
+    if (clue && !clueFound) findClue(clue.id, ev.id)
+    setShowReveal(true)
   }
 
-  const InsightBlock = isInsight && (
-    <div className="mt-2">
-      {!(showInsight || clueFound) ? (
-        <button
-          onClick={revealInsight}
-          className="inline-flex items-center gap-1 rounded-full border border-[#333] px-2.5 py-1 text-xs text-white/70 hover:border-warn/60 hover:text-warn"
-        >
-          🤔 這則貼文，哪裡怪怪的？
-        </button>
-      ) : (
-        <div className={`animate-fadeup rounded-xl border p-3 ${ev.clue.boss ? 'border-brand/50 bg-brand/10' : 'border-danger/40 bg-danger/10'}`}>
-          <p className={`text-sm font-bold ${ev.clue.boss ? 'text-brand' : 'text-danger'}`}>
-            {ev.clue.boss ? '👑 魔王破綻！' : '🚩 抓到破綻！'}
-          </p>
-          <p className="mt-1 text-sm text-white/90">{ev.clue.found}</p>
-          <p className="mt-2 text-xs text-mute">{ev.clue.truth}</p>
-        </div>
-      )}
+  // 這則貼文本身「可被標記可疑」的破綻類型（timeline 靠證據板比對，不算貼文本身可疑）
+  const flaggable = clue && ['zoom', 'reverse', 'insight', 'account'].includes(clue.method)
+
+  // 困難模式：標記可疑
+  const flagSuspicious = () => {
+    if (!flaggable) {
+      // 這則其實沒問題（或問題不在貼文本身）→ 誤判
+      setMissed(true)
+      addMiss(ev.id)
+      return
+    }
+    if (clue.method === 'zoom' || clue.method === 'reverse') {
+      setZoom(true) // 進圖裡指出問題（困難模式點錯地方＝誤判）
+      return
+    }
+    // insight / account：判斷「可疑」正確即揭露
+    revealClue()
+  }
+
+  const RevealBox = (showReveal || clueFound) && clue && (isInsight || clue.method === 'account') && (
+    <div className={`mt-2 animate-fadeup rounded-xl border p-3 ${clue.boss ? 'border-brand/50 bg-brand/10' : 'border-danger/40 bg-danger/10'}`}>
+      <p className={`text-sm font-bold ${clue.boss ? 'text-brand' : 'text-danger'}`}>
+        {clue.boss ? '👑 魔王破綻！' : '🚩 抓到破綻！'}
+      </p>
+      <p className="mt-1 text-sm text-white/90">{clue.found}</p>
+      <p className="mt-2 text-xs text-mute">{clue.truth}</p>
+    </div>
+  )
+
+  const MissBox = missed && !clueFound && (
+    <div className="mt-2 animate-fadeup rounded-xl border border-warn/40 bg-warn/10 p-3">
+      <p className="text-sm font-bold text-warn">🤔 查證後，這則其實沒問題</p>
+      <p className="mt-1 text-xs text-white/80">你太快喊「假的」，冤枉了人。（誤判 +1）</p>
     </div>
   )
 
   const Media = hasMedia && (
     <div className="mt-2">
-      <div className="cursor-zoom overflow-hidden rounded-2xl border border-[#2e2e2e]" onClick={() => setZoom(true)}>
+      <div className="cursor-zoom overflow-hidden rounded-2xl border border-[#2e2e2e]" onClick={() => (isHard ? flagSuspicious() : setZoom(true))}>
         <FakeShot shot={ev.shot} audio={ev.audio} />
       </div>
-      <button
-        onClick={() => setZoom(true)}
-        className="mt-2 inline-flex items-center gap-1 rounded-full border border-[#333] px-2.5 py-1 text-xs text-white/70 hover:border-white/50 hover:text-white"
-      >
-        🔍 放大檢查
-      </button>
+    </div>
+  )
+
+  // 動作按鈕（依難度）
+  const ActionButtons = (
+    <div className="mt-2 flex flex-wrap gap-2">
+      {isHard ? (
+        !clueFound && !missed ? (
+          <button
+            onClick={flagSuspicious}
+            className="inline-flex items-center gap-1 rounded-full border border-[#333] px-2.5 py-1 text-xs text-white/70 hover:border-danger/60 hover:text-danger"
+          >
+            🚩 標記可疑
+          </button>
+        ) : null
+      ) : (
+        <>
+          {hasMedia && (
+            <button
+              onClick={() => setZoom(true)}
+              className="inline-flex items-center gap-1 rounded-full border border-[#333] px-2.5 py-1 text-xs text-white/70 hover:border-white/50 hover:text-white"
+            >
+              🔍 放大檢查
+            </button>
+          )}
+          {isInsight && !(showReveal || clueFound) && (
+            <button
+              onClick={revealClue}
+              className="inline-flex items-center gap-1 rounded-full border border-[#333] px-2.5 py-1 text-xs text-white/70 hover:border-warn/60 hover:text-warn"
+            >
+              🤔 這則貼文，哪裡怪怪的？
+            </button>
+          )}
+        </>
+      )}
     </div>
   )
 
@@ -58,7 +108,12 @@ export default function PostCard({ ev, onOpenAccount, variant = 'thread' }) {
     <ImageZoom
       ev={ev}
       alreadyFound={clueFound}
+      hard={isHard}
       onFind={() => findClue(ev.clue.id, ev.id)}
+      onMiss={() => {
+        setMissed(true)
+        addMiss(ev.id)
+      }}
       onClose={() => setZoom(false)}
     />
   )
@@ -75,6 +130,9 @@ export default function PostCard({ ev, onOpenAccount, variant = 'thread' }) {
         <div className="ml-9 max-w-[85%] rounded-2xl rounded-tl-sm bg-[#1e1e1e] p-3">
           <p className="whitespace-pre-line text-[15px] leading-relaxed text-white">{ev.body}</p>
           {Media}
+          {ActionButtons}
+          {RevealBox}
+          {MissBox}
           <div className="mt-1 text-right text-[10px] text-mute">{ev.time}</div>
         </div>
         {clueFound && <div className="ml-9 mt-1 text-[11px] font-semibold text-danger">🚩 你已標記此訊息存疑</div>}
@@ -105,7 +163,9 @@ export default function PostCard({ ev, onOpenAccount, variant = 'thread' }) {
         <p className="mt-0.5 whitespace-pre-line text-[15px] leading-[1.45] text-white">{ev.body}</p>
 
         {Media}
-        {InsightBlock}
+        {ActionButtons}
+        {RevealBox}
+        {MissBox}
 
         {/* Threads 動作列 */}
         <div className="-ml-2 mt-2 flex items-center text-white">
@@ -117,10 +177,9 @@ export default function PostCard({ ev, onOpenAccount, variant = 'thread' }) {
           <ActionBtn><SendIcon /></ActionBtn>
         </div>
 
-        {/* 讚數 / 回覆數 meta */}
         <div className="mt-1 text-[13px] text-mute">
           {ev.shares != null && <span>{Math.round(ev.shares / 3).toLocaleString()} 則回覆</span>}
-          {ev.shares != null && (ev.likes != null) && <span> · </span>}
+          {ev.shares != null && ev.likes != null && <span> · </span>}
           {ev.likes != null && <span>{(likeBase + (liked ? 1 : 0)).toLocaleString()} 個讚</span>}
           {clueFound && <span className="ml-2 font-semibold text-danger">· 🚩 已存疑</span>}
         </div>
@@ -132,10 +191,7 @@ export default function PostCard({ ev, onOpenAccount, variant = 'thread' }) {
 
 function Avatar({ ev, size = 'h-9 w-9', text = 'text-lg' }) {
   return (
-    <span
-      className={`grid ${size} place-items-center rounded-full ${text}`}
-      style={{ background: 'linear-gradient(135deg,#3a3a3a,#1c1c1c)' }}
-    >
+    <span className={`grid ${size} place-items-center rounded-full ${text}`} style={{ background: 'linear-gradient(135deg,#3a3a3a,#1c1c1c)' }}>
       {ev.avatar}
     </span>
   )
@@ -143,10 +199,7 @@ function Avatar({ ev, size = 'h-9 w-9', text = 'text-lg' }) {
 
 function ActionBtn({ children, onClick, active }) {
   return (
-    <button
-      onClick={onClick}
-      className={`rounded-full p-2 transition hover:bg-white/10 ${active ? 'text-danger' : 'text-white'}`}
-    >
+    <button onClick={onClick} className={`rounded-full p-2 transition hover:bg-white/10 ${active ? 'text-danger' : 'text-white'}`}>
       {children}
     </button>
   )
@@ -159,13 +212,10 @@ function VerifiedBadge() {
     </svg>
   )
 }
-
 function DotsIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
-      <circle cx="5" cy="12" r="1.6" />
-      <circle cx="12" cy="12" r="1.6" />
-      <circle cx="19" cy="12" r="1.6" />
+      <circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" />
     </svg>
   )
 }

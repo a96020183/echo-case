@@ -2,9 +2,10 @@ import { useState } from 'react'
 import FakeShot from './FakeShot.jsx'
 
 // 放大鏡：
-//  - method 'zoom'    → 圖中破綻位置出現可點擊高亮，點了揭露
+//  - method 'zoom'    → 圖中破綻位置有可點擊高亮，點了揭露
 //  - method 'reverse' → 提供「以圖搜圖」反查來源
-export default function ImageZoom({ ev, alreadyFound, onFind, onClose }) {
+//  困難模式(hard)：點錯地方（非破綻處）＝誤判 onMiss。
+export default function ImageZoom({ ev, alreadyFound, hard, onFind, onMiss, onClose }) {
   const [revealed, setRevealed] = useState(alreadyFound)
   const clue = ev.clue
   const method = clue?.method
@@ -14,25 +15,35 @@ export default function ImageZoom({ ev, alreadyFound, onFind, onClose }) {
     if (!alreadyFound) onFind?.()
   }
 
+  const handleMiss = () => {
+    onMiss?.()
+    onClose?.()
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={onClose}>
-      <div
-        className="relative w-full max-w-md animate-pop rounded-2xl border border-line bg-panel p-4"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="relative w-full max-w-md animate-pop rounded-2xl border border-line bg-panel p-4" onClick={(e) => e.stopPropagation()}>
         <div className="mb-3 flex items-center justify-between">
-          <span className="text-sm font-semibold text-white/80">🔍 放大檢查</span>
+          <span className="text-sm font-semibold text-white/80">
+            {hard && !revealed ? '🔍 指出可疑的地方' : '🔍 放大檢查'}
+          </span>
           <button onClick={onClose} className="text-mute hover:text-white">✕</button>
         </div>
 
-        {/* FakeShot 自己畫破綻高亮，位置保證對齊 */}
-        <FakeShot
-          shot={ev.shot}
-          audio={ev.audio}
-          inspect={method === 'zoom'}
-          revealed={revealed && method === 'zoom'}
-          onInspect={reveal}
-        />
+        <div className="relative overflow-hidden rounded-lg">
+          {/* 困難模式：整張圖的背景是「誤判」熱區，破綻高亮在上層(z-10)＝命中 */}
+          {hard && method === 'zoom' && !revealed && (
+            <button onClick={handleMiss} className="absolute inset-0 z-0" aria-label="這裡" />
+          )}
+          <FakeShot
+            shot={ev.shot}
+            audio={ev.audio}
+            inspect={method === 'zoom'}
+            revealed={revealed && method === 'zoom'}
+            onInspect={reveal}
+            noHint={hard}
+          />
+        </div>
 
         {/* 反查來源按鈕 */}
         {method === 'reverse' && !revealed && (
@@ -46,7 +57,9 @@ export default function ImageZoom({ ev, alreadyFound, onFind, onClose }) {
 
         {/* 說明 / 結果 */}
         {!revealed ? (
-          <p className="mt-3 text-xs text-mute">{clue?.hint || '仔細看看有沒有不對勁的地方。'}</p>
+          <p className="mt-3 text-xs text-mute">
+            {hard ? '在圖上點出你覺得有問題的地方。點錯＝誤判。' : clue?.hint || '仔細看看有沒有不對勁的地方。'}
+          </p>
         ) : (
           <div className="mt-3 animate-fadeup rounded-lg border border-danger/40 bg-danger/10 p-3">
             <p className="text-sm font-bold text-danger">🚩 抓到破綻！</p>
@@ -54,15 +67,10 @@ export default function ImageZoom({ ev, alreadyFound, onFind, onClose }) {
             {clue.reverseResult && (
               <div className="mt-2 rounded border border-line bg-panel2 p-2 text-xs">
                 <div className="mb-2 font-semibold text-white/90">以圖搜圖：找到 1 筆相同圖片</div>
-                {/* 視覺比對：兩張一模一樣 */}
                 <div className="flex items-stretch gap-2">
-                  <div className="flex-1">
-                    <MiniAlley label="你手上的「當晚」圖" tag="今天" tagClass="bg-danger/30 text-danger" />
-                  </div>
+                  <div className="flex-1"><MiniAlley label="你手上的「當晚」圖" tag="今天" tagClass="bg-danger/30 text-danger" /></div>
                   <div className="flex items-center text-lg text-warn">=</div>
-                  <div className="flex-1">
-                    <MiniAlley label={clue.reverseResult.source} tag="2020" tagClass="bg-warn/30 text-warn" />
-                  </div>
+                  <div className="flex-1"><MiniAlley label={clue.reverseResult.source} tag="2020" tagClass="bg-warn/30 text-warn" /></div>
                 </div>
                 <div className="mt-2 text-mute">{clue.reverseResult.title}</div>
                 <div className="mt-1 font-semibold text-warn">{clue.reverseResult.note}</div>
@@ -76,7 +84,6 @@ export default function ImageZoom({ ev, alreadyFound, onFind, onClose }) {
   )
 }
 
-// 反查比對用的小縮圖：與「當晚後門畫面」同一張巷弄圖（縮小版）
 function MiniAlley({ label, tag, tagClass }) {
   return (
     <div>

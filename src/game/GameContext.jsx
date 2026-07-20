@@ -10,8 +10,13 @@ export function useGame() {
   return ctx
 }
 
+const MAX_MISSES = 3
+
 const START = {
-  screen: 'intro', // 'intro' | 'playing' | 'ending'
+  screen: 'intro', // 'intro' | 'playing' | 'ending' | 'gameover'
+  mode: 'hard', // 'easy' | 'hard'
+  misses: 0, // 困難模式：誤判次數
+  wrongFlagged: [], // 已誤判過的 evidence id（避免重複扣）
   tutorialDone: false,
   actIndex: 0,
   followers: you.startFollowers,
@@ -32,9 +37,23 @@ const START = {
 export function GameProvider({ children }) {
   const [s, setS] = useState(START)
 
-  const start = useCallback(() => setS((p) => ({ ...p, screen: 'playing', actIndex: 0 })), [])
+  const start = useCallback((mode = 'hard') => setS((p) => ({ ...p, mode, screen: 'playing', actIndex: 0 })), [])
   const restart = useCallback(() => setS(START), [])
   const finishTutorial = useCallback(() => setS((p) => ({ ...p, tutorialDone: true })), [])
+
+  // 困難模式：誤判一次（把沒問題的東西當成假的，或點錯地方）
+  const addMiss = useCallback((evId) => {
+    setS((p) => {
+      if (evId && p.wrongFlagged.includes(evId)) return p // 同一則不重複扣
+      const misses = p.misses + 1
+      return {
+        ...p,
+        misses,
+        wrongFlagged: evId ? [...p.wrongFlagged, evId] : p.wrongFlagged,
+        screen: misses >= MAX_MISSES ? 'gameover' : p.screen,
+      }
+    })
+  }, [])
 
   // 找到破綻（查核成功）
   const findClue = useCallback((clueId, evidenceId) => {
@@ -124,6 +143,8 @@ export function GameProvider({ children }) {
       nonBossFoundCount, // 對外找到數 /9
       bossFound, // 是否找到魔王
       bossIds,
+      maxMisses: MAX_MISSES,
+      isHard: s.mode === 'hard',
       cluesFoundCount: s.cluesFound.length,
       isVerified: (evId) => s.verified.includes(evId),
       isClueFound: (clueId) => s.cluesFound.includes(clueId),
@@ -134,6 +155,7 @@ export function GameProvider({ children }) {
       restart,
       finishTutorial,
       findClue,
+      addMiss,
       markReversed,
       markAccountChecked,
       unlockSearch,
@@ -141,7 +163,7 @@ export function GameProvider({ children }) {
       decide,
       evidence,
     }
-  }, [s, start, restart, finishTutorial, findClue, markReversed, markAccountChecked, unlockSearch, toggleFollow, decide])
+  }, [s, start, restart, finishTutorial, findClue, addMiss, markReversed, markAccountChecked, unlockSearch, toggleFollow, decide])
 
   return <GameCtx.Provider value={value}>{children}</GameCtx.Provider>
 }

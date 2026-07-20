@@ -6,7 +6,7 @@ import DecisionPanel from '../components/DecisionPanel.jsx'
 import Tutorial from '../components/Tutorial.jsx'
 
 export default function PlayScreen() {
-  const { state, act, cluesFoundCount, advertisedTotal, nonBossFoundCount, bossFound, finishTutorial } = useGame()
+  const { state, act, cluesFoundCount, advertisedTotal, nonBossFoundCount, bossFound, isHard, maxMisses, finishTutorial } = useGame()
   const [showBrief, setShowBrief] = useState(true)
   const [showDecision, setShowDecision] = useState(false)
   const [toast, setToast] = useState(null)
@@ -66,6 +66,14 @@ export default function PlayScreen() {
               {bossFound && <span className="ml-0.5 text-brand">+1👑</span>}
             </div>
           </div>
+          {isHard && (
+            <div>
+              <div className="text-[10px] text-mute sm:text-xs">誤判</div>
+              <div className={`font-mono text-sm font-bold sm:text-base ${state.misses >= 2 ? 'text-danger' : 'text-white'}`}>
+                {state.misses}/{maxMisses}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -108,7 +116,7 @@ export default function PlayScreen() {
 
         {/* 右：假手機 */}
         <div className="order-1 md:order-2">
-          <PhoneShell items={items} hint={act.tip} />
+          <PhoneShell items={items} hint={isHard ? '沒有提示。覺得哪則可疑就「標記可疑」，再指出問題在哪——但別亂喊，誤判 3 次出局。' : act.tip} />
         </div>
       </div>
 

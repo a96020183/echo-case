@@ -1,22 +1,23 @@
 // 程式繪製的「假截圖」：直播畫面、收據、巷弄舊圖、錄音波形。
 // 破綻(破 綻)畫在裡面。inspect=true 時，破綻位置會出現可點擊高亮，
 // 點了 → onInspect()；revealed=true 時破綻用紅框標出。位置與特徵共用同組定位，保證對齊。
-export default function FakeShot({ shot, audio, inspect = false, revealed = false, onInspect }) {
-  if (audio) return <Waveform audio={audio} inspect={inspect} revealed={revealed} onInspect={onInspect} />
+export default function FakeShot({ shot, audio, inspect = false, revealed = false, onInspect, noHint = false }) {
+  if (audio) return <Waveform audio={audio} inspect={inspect} revealed={revealed} onInspect={onInspect} noHint={noHint} />
   if (!shot) return null
 
   const base = 'relative w-full overflow-hidden rounded-lg border border-black/40'
   const h = 'h-64'
 
   // 可點擊高亮 / 已揭露紅框（共用），用 className 定位以對齊特徵
+  // noHint（困難模式）：不顯示 hover 高亮，玩家得自己找位置
   const Marker = ({ className }) =>
     revealed ? (
       <div className={`absolute z-10 rounded ring-2 ring-danger bg-danger/20 ${className}`} />
     ) : inspect ? (
       <button
         onClick={onInspect}
-        className={`absolute z-10 rounded ring-2 ring-warn/0 transition hover:ring-warn hover:bg-warn/15 ${className}`}
-        title="這裡看起來怪怪的？"
+        className={`absolute z-10 rounded ${noHint ? '' : 'ring-2 ring-warn/0 transition hover:ring-warn hover:bg-warn/15'} ${className}`}
+        title={noHint ? '' : '這裡看起來怪怪的？'}
       />
     ) : null
 
@@ -177,7 +178,7 @@ export default function FakeShot({ shot, audio, inspect = false, revealed = fals
   return <div className={`${base} ${h} bg-panel2`} />
 }
 
-function Waveform({ audio, inspect, revealed, onInspect }) {
+function Waveform({ audio, inspect, revealed, onInspect, noHint = false }) {
   const bars = 48
   return (
     <div className="rounded-lg border border-black/40 bg-[#0f1520] p-3">
@@ -205,9 +206,9 @@ function Waveform({ audio, inspect, revealed, onInspect }) {
         ) : inspect ? (
           <button
             onClick={onInspect}
-            className="absolute z-10 rounded ring-2 ring-warn/0 transition hover:ring-warn hover:bg-warn/15"
+            className={`absolute z-10 rounded ${noHint ? '' : 'ring-2 ring-warn/0 transition hover:ring-warn hover:bg-warn/15'}`}
             style={{ left: '42%', width: '8%', top: 0, bottom: 0 }}
-            title="這段波形怪怪的？"
+            title={noHint ? '' : '這段波形怪怪的？'}
           />
         ) : null}
       </div>
