@@ -11,6 +11,7 @@ export function useGame() {
 
 const START = {
   screen: 'intro', // 'intro' | 'playing' | 'ending'
+  tutorialDone: false,
   actIndex: 0,
   followers: you.startFollowers,
   cluesFound: [], // clue id 陣列
@@ -28,6 +29,7 @@ export function GameProvider({ children }) {
 
   const start = useCallback(() => setS((p) => ({ ...p, screen: 'playing', actIndex: 0 })), [])
   const restart = useCallback(() => setS(START), [])
+  const finishTutorial = useCallback(() => setS((p) => ({ ...p, tutorialDone: true })), [])
 
   // 找到破綻（查核成功）
   const findClue = useCallback((clueId, evidenceId) => {
@@ -85,6 +87,7 @@ export function GameProvider({ children }) {
       isAccountChecked: (evId) => s.accountsChecked.includes(evId),
       start,
       restart,
+      finishTutorial,
       findClue,
       markReversed,
       markAccountChecked,
@@ -92,7 +95,7 @@ export function GameProvider({ children }) {
       decide,
       evidence,
     }
-  }, [s, start, restart, findClue, markReversed, markAccountChecked, unlockSearch, decide])
+  }, [s, start, restart, finishTutorial, findClue, markReversed, markAccountChecked, unlockSearch, decide])
 
   return <GameCtx.Provider value={value}>{children}</GameCtx.Provider>
 }

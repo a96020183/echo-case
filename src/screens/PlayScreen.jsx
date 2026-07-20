@@ -3,9 +3,10 @@ import { useGame } from '../game/GameContext.jsx'
 import { acts, evidence as EV } from '../game/data/content.js'
 import PhoneShell from '../components/PhoneShell.jsx'
 import DecisionPanel from '../components/DecisionPanel.jsx'
+import Tutorial from '../components/Tutorial.jsx'
 
 export default function PlayScreen() {
-  const { state, act, cluesFoundCount, totalClues } = useGame()
+  const { state, act, cluesFoundCount, totalClues, finishTutorial } = useGame()
   const [showBrief, setShowBrief] = useState(true)
   const [showDecision, setShowDecision] = useState(false)
   const [toast, setToast] = useState(null)
@@ -34,6 +35,8 @@ export default function PlayScreen() {
     for (let i = 0; i <= state.actIndex; i++) acts[i]?.evidenceIds?.forEach((id) => ids.add(id))
     return [...ids].map((id) => EV[id]).filter(Boolean)
   }, [state.actIndex])
+
+  const showTutorial = state.actIndex === 0 && !state.tutorialDone
 
   return (
     <div className="w-full max-w-5xl animate-fadeup">
@@ -89,8 +92,11 @@ export default function PlayScreen() {
         </div>
       </div>
 
-      {/* 簡報 modal */}
-      {showBrief && (
+      {/* 新手導覽（第一幕、只教操作） */}
+      {showTutorial && <Tutorial onFinish={finishTutorial} />}
+
+      {/* 簡報 modal（導覽結束後才顯示） */}
+      {showBrief && !showTutorial && (
         <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/80 p-0 sm:items-center sm:p-4" onClick={() => setShowBrief(false)}>
           <div
             className="w-full max-w-md animate-fadeup rounded-t-3xl border border-line bg-black p-5 sm:rounded-3xl"
