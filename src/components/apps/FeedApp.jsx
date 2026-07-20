@@ -7,14 +7,15 @@ export default function FeedApp({ items }) {
   const posts = items.filter((e) => e.app === 'feed')
 
   return (
-    <div className="space-y-3">
-      <div className="sticky top-0 z-10 -mx-3 mb-1 border-b border-line bg-panel/95 px-3 py-2 backdrop-blur">
-        <span className="font-bold">🌊 動態</span>
-        <span className="ml-2 text-xs text-danger">● 事件延燒中</span>
+    <div>
+      {/* Threads 風頂欄 */}
+      <div className="sticky top-0 z-10 -mx-3 mb-1 flex items-center justify-center border-b border-[#262626] bg-ink/95 px-3 py-2 backdrop-blur">
+        <span className="text-base font-black tracking-tight">＠ 動態</span>
+        <span className="absolute right-3 text-[10px] text-danger">● 延燒中</span>
       </div>
       {posts.length === 0 && <Empty text="這裡目前沒有新動態。" />}
       {posts.map((ev) => (
-        <PostCard key={ev.id} ev={ev} onOpenAccount={setAccount} />
+        <PostCard key={ev.id} ev={ev} onOpenAccount={setAccount} variant="thread" />
       ))}
       {account && <AccountModal ev={account} onClose={() => setAccount(null)} />}
     </div>
@@ -22,5 +23,5 @@ export default function FeedApp({ items }) {
 }
 
 function Empty({ text }) {
-  return <div className="rounded-xl border border-dashed border-line p-6 text-center text-sm text-mute">{text}</div>
+  return <div className="mt-4 rounded-xl border border-dashed border-line p-6 text-center text-sm text-mute">{text}</div>
 }

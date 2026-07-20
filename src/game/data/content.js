@@ -200,6 +200,7 @@ export const evidence = {
     author: 'Lisa（前經紀人）',
     at: '@lisa_official',
     avatar: '💁‍♀️',
+    official: true,
     time: '21:30',
     body: '事發當晚我人在高雄出差，附上高鐵票與飯店打卡。我沒有做任何事，請停止傷害。',
     likes: 3200,

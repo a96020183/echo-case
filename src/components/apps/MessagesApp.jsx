@@ -18,7 +18,7 @@ export default function MessagesApp({ items }) {
         </div>
       )}
       {msgs.map((ev) => (
-        <PostCard key={ev.id} ev={ev} onOpenAccount={setAccount} />
+        <PostCard key={ev.id} ev={ev} onOpenAccount={setAccount} variant="dm" />
       ))}
       {account && <AccountModal ev={account} onClose={() => setAccount(null)} />}
     </div>
