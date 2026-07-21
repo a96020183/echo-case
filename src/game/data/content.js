@@ -482,6 +482,9 @@ export const search = {
   '瘋瘋 病史': [
     { title: '瘋瘋兩年前直播提到「心臟不太好」片段', snippet: '本人曾說醫生提醒要注意心律…', fake: false, key: true, unlocks: 'health', clueId: 'c_health_search' },
   ],
+  '瘋瘋病史': [
+    { title: '瘋瘋兩年前直播提到「心臟不太好」片段', snippet: '本人曾說醫生提醒要注意心律…', fake: false, key: true, unlocks: 'health', clueId: 'c_health_search' },
+  ],
   '心臟': [
     { title: '瘋瘋曾自述心臟舊疾', snippet: '過往直播與訪談紀錄。', fake: false, key: true, unlocks: 'health', clueId: 'c_health_search' },
   ],
