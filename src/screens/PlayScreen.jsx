@@ -3,10 +3,12 @@ import { useGame } from '../game/GameContext.jsx'
 import { acts, evidence as EV } from '../game/data/content.js'
 import PhoneShell from '../components/PhoneShell.jsx'
 import DecisionPanel from '../components/DecisionPanel.jsx'
+import SocialActionPanel from '../components/SocialActionPanel.jsx'
+import ConsequencePanel from '../components/ConsequencePanel.jsx'
 import Tutorial from '../components/Tutorial.jsx'
 
 export default function PlayScreen() {
-  const { state, act, cluesFoundCount, advertisedTotal, nonBossFoundCount, bossFound, isHard, maxMisses, finishTutorial } = useGame()
+  const { state, act, cluesFoundCount, advertisedTotal, nonBossFoundCount, bossFound, isHard, maxMisses, finishTutorial, chooseSocialAction, advanceFromConsequence } = useGame()
   const [showBrief, setShowBrief] = useState(true)
   const [showDecision, setShowDecision] = useState(false)
   const [toast, setToast] = useState(null)
@@ -88,7 +90,7 @@ export default function PlayScreen() {
         <span>公信力越高，你的話越有人信</span>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-[1fr_auto]">
+      <div className={`grid gap-4 md:grid-cols-[1fr_auto] ${state.phase !== 'detective' ? 'hidden' : ''}`}>
         {/* 左：本幕情境 + 內心 OS */}
         <div className="order-2 space-y-4 md:order-1">
           <div className="rounded-2xl border border-line bg-panel p-4">
@@ -150,7 +152,22 @@ export default function PlayScreen() {
         </div>
       )}
 
-      {/* 決策 modal */}
+      {/* ── 鎖定模式：社群動作選擇（phase === social 且尚未選） ── */}
+      {state.phase === 'social' && !state.socialChoice && !showBrief && !showTutorial && (
+        <SocialActionPanel act={act} onChoose={chooseSocialAction} />
+      )}
+
+      {/* ── 後果畫面（選了非 verify 的動作） ── */}
+      {state.phase === 'social' && state.socialChoice && state.socialChoice !== 'verify' && (
+        <ConsequencePanel
+          actionKey={state.socialChoice}
+          consequence={act.socialConsequences?.[state.socialChoice] || {}}
+          act={act}
+          onContinue={advanceFromConsequence}
+        />
+      )}
+
+      {/* 決策 modal（偵探模式結尾才出現） */}
       {showDecision && (
         <DecisionPanel
           act={act}

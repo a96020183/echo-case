@@ -15,6 +15,8 @@ const MAX_MISSES = 3
 const START = {
   screen: 'intro', // 'intro' | 'playing' | 'ending' | 'gameover'
   mode: 'hard', // 'easy' | 'hard'
+  phase: 'social', // 'social' | 'detective' | 'decision' (new: phase within a playing act)
+  socialChoice: null, // which social action was picked this act (null = not yet)
   misses: 0, // 困難模式：誤判次數
   wrongFlagged: [], // 已誤判過的 evidence id（避免重複扣）
   tutorialDone: false,
@@ -37,9 +39,57 @@ const START = {
 export function GameProvider({ children }) {
   const [s, setS] = useState(START)
 
-  const start = useCallback((mode = 'hard') => setS((p) => ({ ...p, mode, screen: 'playing', actIndex: 0 })), [])
+  const start = useCallback((mode = 'hard') => setS((p) => ({ ...p, mode, screen: 'playing', actIndex: 0, phase: 'social', socialChoice: null })), [])
   const restart = useCallback(() => setS(START), [])
   const finishTutorial = useCallback(() => setS((p) => ({ ...p, tutorialDone: true })), [])
+
+  // 鎖定模式：玩家選了社群動作
+  const chooseSocialAction = useCallback((actionKey) => {
+    setS((p) => {
+      if (actionKey === 'verify') {
+        // 進入偵探模式
+        return { ...p, phase: 'detective', socialChoice: 'verify' }
+      }
+      // 非查證：記錄選擇，進入後果顯示（phase stays 'social', socialChoice set）
+      const act = acts[p.actIndex]
+      const consequence = act?.socialConsequences?.[actionKey]
+      const trustDelta = consequence?.trustDelta || 0
+      const followerDelta = consequence?.followerDelta || 0
+      return {
+        ...p,
+        socialChoice: actionKey,
+        followers: Math.max(0, p.followers + followerDelta),
+        trust: Math.max(0, Math.min(100, p.trust + trustDelta)),
+        impulseCount: (actionKey === 'share_criticize' || actionKey === 'like') ? p.impulseCount + 1 : p.impulseCount,
+        cautiousCount: (actionKey === 'nothing' || actionKey === 'reply_oppose') ? p.cautiousCount + 1 : p.cautiousCount,
+      }
+    })
+  }, [])
+
+  // 後果畫面按「繼續」→ 下一幕（重置 phase）
+  const advanceFromConsequence = useCallback(() => {
+    setS((p) => {
+      const nextIndex = p.actIndex + 1
+      const goEnding = acts[nextIndex]?.isEnding
+      const next = {
+        ...p,
+        actIndex: nextIndex,
+        phase: 'social',
+        socialChoice: null,
+        screen: goEnding ? 'ending' : p.screen,
+      }
+      if (goEnding && !p.recorded) {
+        recordPlay({
+          cluesFound: next.cluesFound,
+          impulseCount: next.impulseCount,
+          exposeCount: next.exposeCount,
+          totalClues: ending.clueOrder.length,
+        })
+        next.recorded = true
+      }
+      return next
+    })
+  }, [])
 
   // 困難模式：誤判一次（把沒問題的東西當成假的，或點錯地方）
   const addMiss = useCallback((evId) => {
@@ -108,6 +158,8 @@ export function GameProvider({ children }) {
         cautiousCount: option.tone === 'cautious' ? p.cautiousCount + 1 : p.cautiousCount,
         exposeCount: option.tone === 'expose' ? p.exposeCount + 1 : p.exposeCount,
         actIndex: nextIndex,
+        phase: 'social',
+        socialChoice: null,
         screen: goEnding ? 'ending' : p.screen,
       }
 
@@ -154,6 +206,8 @@ export function GameProvider({ children }) {
       start,
       restart,
       finishTutorial,
+      chooseSocialAction,
+      advanceFromConsequence,
       findClue,
       addMiss,
       markReversed,
@@ -163,7 +217,7 @@ export function GameProvider({ children }) {
       decide,
       evidence,
     }
-  }, [s, start, restart, finishTutorial, findClue, addMiss, markReversed, markAccountChecked, unlockSearch, toggleFollow, decide])
+  }, [s, start, restart, finishTutorial, chooseSocialAction, advanceFromConsequence, findClue, addMiss, markReversed, markAccountChecked, unlockSearch, toggleFollow, decide])
 
   return <GameCtx.Provider value={value}>{children}</GameCtx.Provider>
 }

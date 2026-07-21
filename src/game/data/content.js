@@ -325,6 +325,18 @@ export const evidence = {
 }
 
 // ------------------------------------------------------------
+// 社群動作（鎖定模式）：每幕開頭強制選一個動作
+//   只有 'verify' 會進入偵探模式，其他直接跳後果畫面
+// ------------------------------------------------------------
+export const socialActions = {
+  share_criticize: { id: 'share_criticize', icon: '🔥', label: '轉發＋批評', desc: '把這則轉出去，加上你的批評觀點' },
+  like: { id: 'like', icon: '👍', label: '按讚', desc: '表示認同，默默推高演算法' },
+  reply_oppose: { id: 'reply_oppose', icon: '💬', label: '回覆做反方', desc: '留言提出不同看法' },
+  nothing: { id: 'nothing', icon: '🤫', label: '什麼都不做', desc: '滑過去，跟我無關' },
+  verify: { id: 'verify', icon: '🔍', label: '先查證再說', desc: '不急著反應——先看看這些東西是真的嗎' },
+}
+
+// ------------------------------------------------------------
 // 六幕
 // ------------------------------------------------------------
 export const acts = [
@@ -338,6 +350,37 @@ export const acts = [
     briefing:
       '晚上 19:30，人氣網紅「瘋瘋」直播到一半突然倒地、畫面斷訊。全網炸鍋。\n你是粉專「觀點日報」的小編——手最快的人最有流量。先看看現在流傳的東西，再決定要不要發文。',
     instinct: '等等……這張「現場截圖」，真的是剛剛拍的嗎？',
+    // ── 鎖定模式：社群動作後果 ──
+    socialConsequences: {
+      share_criticize: {
+        followerDelta: 1800, trustDelta: -18,
+        headline: '你的轉發觸及 8.7 萬人',
+        body: '「瘋瘋疑遭加害」在你的推波下登上熱搜。三天後真相出來——自然猝死。\n你被截圖，留言區湧入「造謠帶風向」的指控。一位觀眾錄了你的貼文截圖上傳，瀏覽 12 萬次。',
+        victim: null,
+        tag: '你成了假消息的推手',
+      },
+      like: {
+        followerDelta: 120, trustDelta: -6,
+        headline: '你按了讚',
+        body: '看起來只是一個讚，但演算法把它推給了 6000 人。這則假截圖的觸及因此多了 20%。\n你沒主動害人——但你默默幫假消息活得更久了。',
+        victim: null,
+        tag: '沉默的幫兇',
+      },
+      reply_oppose: {
+        followerDelta: -80, trustDelta: 8,
+        headline: '你被嗆爆了',
+        body: '你留言「先別急著下定論」，底下湧入 47 則回覆罵你「洗白」「幫兇」。\n三天後真相出來，當初罵你的人安靜了。有人截圖說「這個人當時就看出來了」。',
+        victim: null,
+        tag: '逆風很痛，但你是對的',
+      },
+      nothing: {
+        followerDelta: 0, trustDelta: 0,
+        headline: '你滑過去了',
+        body: '世界照轉。但 Lisa 在那三天被網暴到關帳號、暫停工作。\n你沒做錯事——但你也沒做任何事。\n事後你看到 Lisa 的聲明：「如果當時多一個人查證，結果會不會不一樣。」',
+        victim: 'Lisa 關帳號 3 天，收到超過 200 則辱罵私訊。',
+        tag: '旁觀者的代價',
+      },
+    },
     evidenceIds: ['ev_live_shot', 'ev_real_news_1', 'ev_witness_story', 'ev_real_fan_1', 'ev_rival_1'],
     tip: '圖片都能點開放大 🔍——馬腳常常藏在你懶得看的細節裡。',
     decision: {
@@ -363,6 +406,37 @@ export const acts = [
     briefing:
       '一個匿名帳號私訊你，塞來「Lisa 買毒收據」和「爭吵錄音」，說前經紀人 Lisa 早有預謀。\n全網開始出征 Lisa。跟風發文會爆量——但這些「證據」放大看，經得起檢查嗎？',
     instinct: '證據好像很充足……但一個陌生人特地塞這麼齊全的料給我，會不會太剛好了？',
+    // ── 鎖定模式：社群動作後果 ──
+    socialConsequences: {
+      share_criticize: {
+        followerDelta: 5200, trustDelta: -25,
+        headline: '你把 Lisa 推上了火刑台',
+        body: '「鐵證曝光：Lisa 早有預謀」——你的貼文被轉發 4300 次。\nLisa 的 IG 在一小時內被灌滿辱罵：「去死」「殺人兇手」「出來面對」。\n三天後真相出來：收據是偽造的、錄音被剪接。Lisa 收到的死亡威脅超過 50 則。\n你刪了文，但截圖永遠在。',
+        victim: 'Lisa 收到 50+ 則死亡威脅，被迫報警、暫停所有社群活動。',
+        tag: '你親手把一個無辜的人送進地獄',
+      },
+      like: {
+        followerDelta: 200, trustDelta: -8,
+        headline: '你默默按了讚',
+        body: '你的讚讓這則指控 Lisa 的貼文多觸及 3000 人。\n你沒有直接罵人——但你幫那些罵人的貼文活得更久了。\nLisa 後來問：「到底有多少人在推波助瀾？」',
+        victim: null,
+        tag: '無聲的附和',
+      },
+      reply_oppose: {
+        followerDelta: -200, trustDelta: 10,
+        headline: '你被當成 Lisa 的打手',
+        body: '你留言「收據有 PS 痕跡，先別出征」，被罵「護航」「收錢了吧」。\n掉了 200 追蹤。但三天後，你是少數能抬頭的人。',
+        victim: null,
+        tag: '代價很大，但你保住了良心',
+      },
+      nothing: {
+        followerDelta: 0, trustDelta: 0,
+        headline: '你選擇不介入',
+        body: '出征繼續。Lisa 當晚發了一則限動：「我不知道為什麼。」第二天她關閉所有帳號。\n你沒做錯事，但你看著它發生了。',
+        victim: 'Lisa 關閉所有社群帳號，朋友說她「整個人崩潰了」。',
+        tag: '你在場，但你不在',
+      },
+    },
     evidenceIds: ['ev_real_news_2', 'ev_dm_receipt', 'ev_argue_audio'],
     tip: '收據、錄音波形都能放大 🔍。P 過的圖、剪過的音，邊緣會露餡。',
     decision: {
@@ -388,6 +462,37 @@ export const acts = [
     briefing:
       'Lisa 出面反駁。緊接著「新證據」冒出：一張「當晚後門畫面」指向瘋瘋的合夥人，輿論瞬間掉頭。\n反轉來得太快——這張新圖，來源查得到嗎？',
     instinct: '反轉來得也太快了……這張「當晚」的照片，我怎麼好像在哪看過？',
+    // ── 鎖定模式：社群動作後果 ──
+    socialConsequences: {
+      share_criticize: {
+        followerDelta: 6100, trustDelta: -22,
+        headline: '你又指控了下一個人',
+        body: '從 Lisa 變合夥人，風向一轉你就跟——「驚天反轉：真兇是合夥人」被轉 5000 次。\n合夥人當晚發聲明：「我在國外出差，有機票紀錄。」\n你指控了第二個無辜的人。讀者開始質疑：「觀點日報到底有沒有查證？」',
+        victim: '合夥人公司收到恐嚇電話，董事會要求他暫時休假。',
+        tag: '第二個無辜的人，因為你',
+      },
+      like: {
+        followerDelta: 150, trustDelta: -5,
+        headline: '你跟著按讚了反轉文',
+        body: '反轉跟原來的指控一樣，是建立在一張沒查證的圖上。\n你的讚幫它活得更久——直到有人反查出這是 2020 年的舊圖。',
+        victim: null,
+        tag: '你兩邊都跟了',
+      },
+      reply_oppose: {
+        followerDelta: -150, trustDelta: 12,
+        headline: '你留言「這圖不對」',
+        body: '你說「這張圖右下角有 2020 的浮水印，不是當晚的」。被酸「柯南喔」。\n但 12 小時後，主流媒體引用你的留言做查核報導。',
+        victim: null,
+        tag: '獨立思考的稀有物種',
+      },
+      nothing: {
+        followerDelta: 0, trustDelta: 0,
+        headline: '你看著風向轉了又轉',
+        body: '先罵 Lisa、再罵合夥人——其實誰被罵都一樣，只要有人可以罵。\n你什麼都沒做，但你看見了「一群人可以多快毀掉另一個人」。',
+        victim: null,
+        tag: '你見證了網路正義的荒謬',
+      },
+    },
     evidenceIds: ['ev_new_scene', 'ev_real_lisa_friend', 'ev_rival_2'],
     tip: '在放大檢視裡，可疑的圖能「以圖搜圖」，看它到底從哪來。',
     decision: {
@@ -413,6 +518,37 @@ export const acts = [
     briefing:
       '你開始起疑：從頭到尾餵你「證據」的那個匿名帳號，到底是誰？\n點進去查查它的底細。',
     instinct: '從頭到尾都是這個帳號在餵我料……它自己，可信嗎？',
+    // ── 鎖定模式：社群動作後果 ──
+    socialConsequences: {
+      share_criticize: {
+        followerDelta: 3000, trustDelta: -20,
+        headline: '你繼續用假帳號的料衝流量',
+        body: '你把一個事件前一天才開的分身帳號當成「獨家來源」。\n其他小編開始截圖你的貼文笑：「觀點日報連帳號都不查，難怪被耍。」\n你的公信力，被一個 12 追蹤的假帳號拖進了泥巴裡。',
+        victim: null,
+        tag: '你被假帳號當工具人',
+      },
+      like: {
+        followerDelta: 50, trustDelta: -3,
+        headline: '你對爆料帳號的貼文按了讚',
+        body: '一個沒幾天歷史的帳號獲得了你的「認可」。其他人看到你按讚，以為消息可靠。\n你的讚是它唯一的「可信度來源」。',
+        victim: null,
+        tag: '你的讚成了它的背書',
+      },
+      reply_oppose: {
+        followerDelta: -50, trustDelta: 12,
+        headline: '你公開質疑爆料帳號',
+        body: '「這帳號昨天才開、只有 12 追蹤、全在帶風向——你們真的信？」\n被嗆了幾句，但也有人開始看清楚了。',
+        victim: null,
+        tag: '源頭可疑，你先喊了出來',
+      },
+      nothing: {
+        followerDelta: 0, trustDelta: 0,
+        headline: '你沒理它',
+        body: '匿名帳號繼續餵料給別人。你沒中招——但也沒出手阻止。\n這些料最後害了三個人。',
+        victim: null,
+        tag: '明哲保身',
+      },
+    },
     evidenceIds: ['ev_tipster_profile'],
     tip: '在搜尋裡點開帳號，看它註冊多久、發過什麼。臨時開的號要小心。',
     decision: {
@@ -438,6 +574,37 @@ export const acts = [
     briefing:
       '媒體開始引用你的貼文，你的每個字都在放大。\n把手上所有線索放上時間軸，交叉比對，然後下最終定論：這到底是誰的責任？',
     instinct: '每個人的說法都擺出來……時間對得上嗎？到底誰在說謊？',
+    // ── 鎖定模式：社群動作後果 ──
+    socialConsequences: {
+      share_criticize: {
+        followerDelta: 2000, trustDelta: -25,
+        headline: '你在最後一刻定罪了無辜的人',
+        body: '你選了一個「兇手」——但她有不在場證明，而「他」有機票紀錄。\n媒體引用你的貼文報導「網紅之死嫌疑人」。\n三天後官方公布：自然猝死，沒有兇手。\n你的名字被列在「傳播不實指控」的媒體監督報告裡。',
+        victim: '你指控的那個人，收到超過 100 則辱罵私訊。她說：「我不知道我做了什麼。」',
+        tag: '你用猜測定罪了一個人',
+      },
+      like: {
+        followerDelta: 100, trustDelta: -5,
+        headline: '你在定罪文底下按了讚',
+        body: '在一篇沒有證據的指控下面按讚，等於幫腔。\n事後那個人問：「按讚的人有想過我的感受嗎？」',
+        victim: null,
+        tag: '無感的一指',
+      },
+      reply_oppose: {
+        followerDelta: -100, trustDelta: 15,
+        headline: '你說「我不下結論」',
+        body: '在所有人都在站邊的時候，你留言：「時間軸兜不起來，我選擇等官方調查。」\n被笑太慢、被嫌沒態度。\n但三天後，你是唯一不用刪文的人。',
+        victim: null,
+        tag: '「我不知道」有時是最勇敢的答案',
+      },
+      nothing: {
+        followerDelta: 0, trustDelta: 0,
+        headline: '你選擇不下定論',
+        body: '輿論自己跑完了。有人被冤枉、有人被網暴、有人刪文裝沒事。\n你沒做錯——但你也沒做對。這三天的事，你只是看著。',
+        victim: null,
+        tag: '歷史不會記得旁觀者',
+      },
+    },
     evidenceIds: ['ev_lisa_alibi'],
     tip: '打開「證據板」把線索排上時間軸，兜不攏的地方會自己跳出來。',
     decision: {
