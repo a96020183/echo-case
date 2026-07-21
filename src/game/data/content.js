@@ -106,6 +106,64 @@ export const evidence = {
     },
   },
 
+  // ── 第一幕真實貼文（不可疑，干擾項）──
+  ev_real_news_1: {
+    id: 'ev_real_news_1',
+    type: 'post',
+    app: 'feed',
+    author: 'ETtoday 新聞雲',
+    at: '@ettoday_news',
+    avatar: '📰',
+    time: '19:35',
+    body: '【快訊】網紅「瘋瘋」直播中身體不適送醫，目前狀況不明，將持續追蹤。',
+    likes: 6200,
+    shares: 2100,
+    innocent: true, // 標記為正常內容，無破綻
+  },
+  ev_real_fan_1: {
+    id: 'ev_real_fan_1',
+    type: 'post',
+    app: 'feed',
+    author: '瘋瘋鐵粉小安',
+    at: '@fengfeng_fan_ann',
+    avatar: '💕',
+    time: '19:38',
+    body: '瘋瘋加油🥺拜託沒事…剛剛直播還好好的，怎麼會這樣。大家先別亂傳謠言，等消息好嗎 #為瘋瘋祈禱',
+    likes: 4100,
+    shares: 980,
+    innocent: true,
+  },
+
+  // ── 第二幕真實貼文（干擾項）──
+  ev_real_news_2: {
+    id: 'ev_real_news_2',
+    type: 'post',
+    app: 'feed',
+    author: 'TVBS 新聞',
+    at: '@tvbs_news',
+    avatar: '📺',
+    time: '20:05',
+    body: '瘋瘋經紀公司回應：「目前已送醫急救中，家屬已到場，詳情稍後說明。」呼籲外界勿散佈未經證實消息。',
+    likes: 5600,
+    shares: 1400,
+    innocent: true,
+  },
+
+  // ── 第三幕真實貼文（干擾項）──
+  ev_real_lisa_friend: {
+    id: 'ev_real_lisa_friend',
+    type: 'post',
+    app: 'feed',
+    author: 'Tina_makeup',
+    at: '@tina_beauty_tw',
+    avatar: '💄',
+    time: '21:00',
+    body: '我跟 Lisa 合作過三年，她是好人。你們什麼都不知道就亂罵，有查證再講好嗎？',
+    likes: 2800,
+    shares: 650,
+    innocent: true,
+  },
+
   // 第二幕
   ev_dm_receipt: {
     id: 'ev_dm_receipt',
@@ -204,7 +262,6 @@ export const evidence = {
       id: 'c_rival_knew',
       skill: 'motive',
       method: 'insight',
-      boss: true,
       hint: '他說「重點不是 Lisa」的時間，會不會太早了？',
       found: '熱點日報在 21:10 就斷言「不是 Lisa」——但 Lisa 的不在場證明 21:30 才公開。',
       truth: '【魔王破綻】他怎麼會在 Lisa 自清之前，就知道兇手不是她？除非他從頭就知道全部是假的——因為造假的人，就是他。這是整起事件的破口。',
@@ -281,7 +338,7 @@ export const acts = [
     briefing:
       '晚上 19:30，人氣網紅「瘋瘋」直播到一半突然倒地、畫面斷訊。全網炸鍋。\n你是粉專「觀點日報」的小編——手最快的人最有流量。先看看現在流傳的東西，再決定要不要發文。',
     instinct: '等等……這張「現場截圖」，真的是剛剛拍的嗎？',
-    evidenceIds: ['ev_live_shot', 'ev_witness_story', 'ev_rival_1'],
+    evidenceIds: ['ev_live_shot', 'ev_real_news_1', 'ev_witness_story', 'ev_real_fan_1', 'ev_rival_1'],
     tip: '圖片都能點開放大 🔍——馬腳常常藏在你懶得看的細節裡。',
     decision: {
       prompt: '事件剛爆，你要怎麼發第一篇？',
@@ -306,7 +363,7 @@ export const acts = [
     briefing:
       '一個匿名帳號私訊你，塞來「Lisa 買毒收據」和「爭吵錄音」，說前經紀人 Lisa 早有預謀。\n全網開始出征 Lisa。跟風發文會爆量——但這些「證據」放大看，經得起檢查嗎？',
     instinct: '證據好像很充足……但一個陌生人特地塞這麼齊全的料給我，會不會太剛好了？',
-    evidenceIds: ['ev_dm_receipt', 'ev_argue_audio'],
+    evidenceIds: ['ev_real_news_2', 'ev_dm_receipt', 'ev_argue_audio'],
     tip: '收據、錄音波形都能放大 🔍。P 過的圖、剪過的音，邊緣會露餡。',
     decision: {
       prompt: '全網都在罵 Lisa，你跟不跟？',
@@ -331,7 +388,7 @@ export const acts = [
     briefing:
       'Lisa 出面反駁。緊接著「新證據」冒出：一張「當晚後門畫面」指向瘋瘋的合夥人，輿論瞬間掉頭。\n反轉來得太快——這張新圖，來源查得到嗎？',
     instinct: '反轉來得也太快了……這張「當晚」的照片，我怎麼好像在哪看過？',
-    evidenceIds: ['ev_new_scene', 'ev_rival_2'],
+    evidenceIds: ['ev_new_scene', 'ev_real_lisa_friend', 'ev_rival_2'],
     tip: '在放大檢視裡，可疑的圖能「以圖搜圖」，看它到底從哪來。',
     decision: {
       prompt: '風向轉了，你要跟著轉去罵合夥人嗎？',
@@ -448,11 +505,11 @@ export const ending = {
     'c_receipt_ps',
     'c_audio_splice',
     'c_reverse_old',
-    'c_health_search',
     'c_rival_boast',
     'c_tipster_sock',
     'c_alibi_conflict',
     'c_rival_knew',
+    'c_health_search',
   ],
   // 帶回現實的查核工具（台灣）
   realTools: [
@@ -469,9 +526,10 @@ export const extraClues = {
     id: 'c_health_search',
     skill: 'search',
     method: 'search',
+    boss: true,
     evAuthor: '搜尋結果',
     found: '搜尋「瘋瘋 病史」發現他兩年前就自述有心臟舊疾。',
-    truth: '瘋瘋本來就有心臟宿疾——「被下毒」的前提從一開始就站不住腳。一搜就有，但很少人會去搜。',
+    truth: '【魔王破綻】瘋瘋本來就有心臟宿疾——「被下毒」的前提從一開始就站不住腳。一搜就有，但藏在搜尋結果第三筆——跟現實一樣，多數人搜了前兩個就放棄了。這是最考驗「資訊搜尋成本」的一關。',
   },
 }
 
